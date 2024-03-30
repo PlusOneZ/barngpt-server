@@ -76,4 +76,8 @@ describe("Task Model Tests", () => {
         const t = await TaskModel.create( new CreateTaskDto(mockContent));
         expect(t.content).toEqual(mockContent);
     })
+
+    it("create task DTO", () => {
+        const dto = new CreateTaskDto("some");
+    })
 })

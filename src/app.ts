@@ -1,25 +1,25 @@
 import express from "express";
-import Route from "./src/interfaces/Route.interface";
+import Route from "./interfaces/Route.interface";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import errorMiddleware from "./src/middlewares/error.middleware";
+import errorMiddleware from "./middlewares/error.middleware";
 
 class App {
     public app: express.Application;
-    public port: (string | number);
-    private env: string;
+    public port: (string | number | undefined);
+    private env: (string | undefined);
 
     constructor(routes: Route[]) {
         dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
         this.app = express();
-        this.port = process.env.PORT;
-        this.env = process.env.NODE_ENV
+        this.port = process.env.PORT ? "3000" : process.env.PORT;
+        this.env = process.env.NODE_ENV ? "development" : process.env.NODE_ENV;
 
         this.initDatabaseConnection();
         this.initMiddlewares();
         this.initSwaggerDocs();
         this.initRoutes(routes);
-        this.initErrorHandling();
+        // this.initErrorHandling(); // TODO: check this
     }
 
     public listen() {
@@ -41,6 +41,8 @@ class App {
         if (this.env === "development") {
 
         }
+        this.app.use(express.urlencoded({ extended: true }));
+        this.app.use(express.json());
     }
 
     private initRoutes(routes: Route[]) {

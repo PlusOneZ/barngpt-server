@@ -1,6 +1,7 @@
 import { TaskModel, Task } from "../models/task.model";
 import HttpException from "../exceptions/HttpException";
 import {CreateTaskDto} from "../dtos/task.dto";
+import mongoose from "mongoose";
 
 export class TaskService {
     public tasks = TaskModel;
@@ -14,5 +15,13 @@ export class TaskService {
         return t;
     }
 
+    public async findSomeTasks(count: number) {
+        if (count <= 0) return [];
+        return await this.tasks.find({}, null, {limit: count}).exec();
+    }
+
+    public async getNewestOne() {
+        return await this.tasks.findOne({}).sort({ createdAt: "desc" }).exec();
+    }
 
 }

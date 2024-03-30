@@ -18,6 +18,13 @@ describe("Task Service", () => {
         expect(saved.content).toEqual("Some Content Mocked")
     }, 10000)
 
+    it("Find some", async () => {
+        const some = await ts.findSomeTasks(5);
+        // console.log(some);
+        expect(some.length).toBeLessThan(6);
+        expect(some[0].content).toBeDefined();
+    })
+
     afterAll(() => {
 
     })
