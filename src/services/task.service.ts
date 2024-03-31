@@ -37,6 +37,14 @@ class TaskService {
         }
     }
 
+    public async getTaskById(taskId: string) {
+        try {
+            return this.tasks.findOne({_id: taskId}).exec();
+        } catch (e) {
+            throw new HttpException(500, "Parsing task UUID failed.");
+        }
+    }
+
 }
 
 export default TaskService;

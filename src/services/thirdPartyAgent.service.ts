@@ -1,36 +1,46 @@
 import {TaskModel} from "../models/task.model";
+import { post } from "request";
+import dotenv from "dotenv";
 
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
 class ThirdPartyAgentService {
-    public readonly API_URL: string | undefined;
-    private readonly HOST: string | undefined;
-    private readonly PORT: string | undefined;
+    public readonly API_URL: string;
+    private readonly HOST: string;
+    private readonly PORT: string;
     private tasks = TaskModel;
 
     constructor() {
-        this.API_URL = process.env.THIRD_PARTY_AGENT_API;
-        this.HOST = process.env.HOST;
-        this.PORT = process.env.PORT;
-
-        if (!this.API_URL) {
+        if (!process.env.THIRD_PARTY_AGENT_API) {
+            console.log(process.env.THIRD_PARTY_AGENT_API)
             console.error("API URL is missing.");
             process.exit(1);
         }
+        this.API_URL = process.env.THIRD_PARTY_AGENT_API!;
+        this.HOST = process.env.HOST!;
+        this.PORT = process.env.PORT!;
     }
 
     public async sendReq(hook: string, data: any) {
-
+        // send request to third party agent
+        post(this.API_URL, {json: {data: data, hook: hook}}, (err, res, body) => {
+            if (err) {
+                console.error(`Error while sending request to ${hook}: ${err}`);
+                // todo: add to records
+            }
+            console.log(`Response from API: ${res}`);
+        });
     }
 
     public createHook(taskId: string) : string {
         const hook: string = `http://${this.HOST}:${this.PORT}/task/${taskId}/hook`;
-        console.log(`Hook created: ${hook}`);
+        // console.log(`Hook created: ${hook}`);
         return hook;
     }
 
     public async taskUpdate(taskId: string | undefined, taskData: any) {
         if (!taskId) {
-            console.error("Task ID is missing.");
+            console.error(`Task ID is missing: ${taskId}`);
             return;
         }
         // option 1: only update the task status
@@ -47,6 +57,7 @@ class ThirdPartyAgentService {
                 console.log(`Task ${taskId} updated.`);
             }).catch((e) => {
                 console.error(`Error while updating Task ${taskId}: ${e}`);
+                // todo record this error
             });
         }
         // option 2: push notification to the user
