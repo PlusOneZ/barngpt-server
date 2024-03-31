@@ -54,6 +54,7 @@ describe("Task Model Tests", () => {
         const t = new TaskModel({ content: mockContent } )
 
         expect(t._id).toBeDefined();
+        console.log(t._id)
         expect(t.content).toEqual(mockContent);
     })
 
@@ -73,11 +74,7 @@ describe("Task Model Tests", () => {
     })
 
     it("TaskModel.create", async () => {
-        const t = await TaskModel.create( new CreateTaskDto(mockContent));
+        const t = await TaskModel.create( new CreateTaskDto(mockContent) );
         expect(t.content).toEqual(mockContent);
-    })
-
-    it("create task DTO", () => {
-        const dto = new CreateTaskDto("some");
     })
 })

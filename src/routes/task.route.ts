@@ -15,6 +15,7 @@ class TaskRoute implements Route {
         this.router.post(`${this.path}`, this.taskHandler.newTask);
         this.router.get(`${this.path}/some`, this.taskHandler.getSome);
         this.router.get(`${this.path}`, this.taskHandler.getNewest);
+        this.router.get(`${this.path}/:id/results`, this.taskHandler.getResults);
     }
 }
 

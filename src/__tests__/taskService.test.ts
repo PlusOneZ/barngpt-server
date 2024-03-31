@@ -1,4 +1,4 @@
-import {TaskService} from "../services/task.service";
+import TaskService from "../services/task.service";
 import {CreateTaskDto} from "../dtos/task.dto";
 import {db} from "../utils/db";
 

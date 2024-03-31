@@ -1,9 +1,8 @@
 import { TaskModel, Task } from "../models/task.model";
 import HttpException from "../exceptions/HttpException";
 import {CreateTaskDto} from "../dtos/task.dto";
-import mongoose from "mongoose";
 
-export class TaskService {
+class TaskService {
     public tasks = TaskModel;
 
     public async createTask(taskData: CreateTaskDto) : Promise<Task> {
@@ -24,4 +23,20 @@ export class TaskService {
         return await this.tasks.findOne({}).sort({ createdAt: "desc" }).exec();
     }
 
+    public async getResults(taskId: string) {
+        try {
+            const t = await this.tasks.findOne({_id: taskId}).exec();
+            if (!t) {
+                throw new HttpException(404, "Task not found.");
+            } else if (t.status !== "done") {
+                return [];
+            }
+            return t.results;
+        } catch (e) {
+            throw new HttpException(500, "Parsing task UUID failed.");
+        }
+    }
+
 }
+
+export default TaskService;
