@@ -5,7 +5,7 @@ import { randomUUID } from "crypto";
 const taskSchema = new Schema({
     _id: {
         type: Schema.Types.UUID,
-        default: randomUUID({ disableEntropyCache: true }),
+        default: randomUUID,
     },
     content: { type: String, required: true },
     status: { type: String, default: "pending" },
