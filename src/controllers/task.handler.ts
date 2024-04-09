@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import TaskService from "../services/task.service";
 import {CreateTaskDto} from "../dtos/task.dto";
 import {Task} from "../models/task.model";
+import TaskService from "../services/task.service";
 import ThirdPartyAgentService from "../services/thirdPartyAgent.service";
 import HttpException from "../exceptions/HttpException";
 
@@ -9,9 +9,14 @@ class TaskHandler {
     taskService = new TaskService();
     agentService = new ThirdPartyAgentService();
 
+    /**
+     * The UUID of mongodb instance is a Buffer, use this method to stringify the UUID field
+     * @param t task instance
+     * @private
+     */
     private static taskStringify(t: any) {
         return {
-            _id: t._id.toString(),
+            _id: t._id.toString(),  // UUID to string
             content: t.content,
             status: t.status,
             createdAt: t.createdAt,
@@ -25,7 +30,7 @@ class TaskHandler {
         try {
             const t: Task = await this.taskService.createTask(taskData);
             res.status(201).json( { data: TaskHandler.taskStringify(t), message: "Task created" });
-            this.agentService.sendReq(this.agentService.createHook(t._id.toString()), {content: taskData.content}).then(
+            this.agentService.sendChatReq(this.agentService.createHook(t._id.toString()), {content: taskData.content}).then(
                 () => console.log("Hook sent")
             ).catch(
                 (e) => console.error(`Error while sending hook: ${e}`)

@@ -1,8 +1,9 @@
+import {types} from "node:util";
 
 export class CreateTaskDto {
-    constructor(content_: string) {
+    constructor(content_: any) {
         this.content = content_
     }
 
-    public content : string;
+    public content : any;
 }

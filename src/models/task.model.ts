@@ -7,7 +7,16 @@ const taskSchema = new Schema({
         type: Schema.Types.UUID,
         default: randomUUID,
     },
-    content: { type: String, required: true },
+    content: {
+        type: Schema.Types.Mixed,
+        required: true,
+        validate: {
+            validator: function (v: any) {
+                return (typeof v == "string") || ('task_type' in v && 'prompts' in v)
+            },
+            message: (props: any) => `${props.value} does not compose a task content.`
+        }
+    },
     status: { type: String, default: "pending" },
     // ownerId: { type: Schema.Types.UUID, ref: 'User' }, // user's ID
     results: [Schema.Types.Mixed]

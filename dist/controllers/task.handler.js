@@ -25,7 +25,7 @@ class TaskHandler {
             try {
                 const t = yield this.taskService.createTask(taskData);
                 res.status(201).json({ data: TaskHandler.taskStringify(t), message: "Task created" });
-                this.agentService.sendReq(this.agentService.createHook(t._id.toString()), { content: taskData.content }).then(() => console.log("Hook sent")).catch((e) => console.error(`Error while sending hook: ${e}`));
+                this.agentService.sendChatReq(this.agentService.createHook(t._id.toString()), { content: taskData.content }).then(() => console.log("Hook sent")).catch((e) => console.error(`Error while sending hook: ${e}`));
             }
             catch (e) {
                 next(e);

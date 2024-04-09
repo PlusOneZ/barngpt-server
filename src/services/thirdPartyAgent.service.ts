@@ -21,17 +21,31 @@ class ThirdPartyAgentService {
         this.PORT = process.env.PORT!;
     }
 
-    public async sendReq(hook: string, data: any) {
-        // send request to third party agent
-        post(this.API_URL, {json: {data: data, hook: hook}}, (err, res, body) => {
+    private readonly responseHandler = (url: string) => {
+        return (err: any, res: any, body: any) => {
             if (err) {
-                console.error(`Error while sending request to ${hook}: ${err}`);
+                console.error(`Error while sending request to ${url}: ${err}`);
                 // todo: add to records
             }
             console.log(`Response from API: ${res}`);
-        });
+        }
     }
 
+    public async sendChatReq(hook: string, data: {content: string}) {
+        // send request to third party agent
+        const url = this.API_URL + "/task/chat"
+        post(url, {json: {data: data, hook: hook}}, this.responseHandler(url));
+    }
+
+    public async sendImageGenReq(hook: string, data: {image_prompt: string}) {
+        // send a image generation request
+        const url = this.API_URL + "/api/task/image/generation"
+        post(url, {json: {data: data, hook: hook}}, this.responseHandler(url))
+    }
+
+    /**
+     * Create a webhook of route /task/:id/hook
+     */
     public createHook(taskId: string) : string {
         const hook: string = `http://${this.HOST}:${this.PORT}/task/${taskId}/hook`;
         // console.log(`Hook created: ${hook}`);

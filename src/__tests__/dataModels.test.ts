@@ -58,6 +58,13 @@ describe("Task Model Tests", () => {
         expect(t.content).toEqual(mockContent);
     })
 
+    it("Task any type", () => {
+        const t = new TaskModel({ content: { task_type: "image_generation", prompts: ["a cat"]}})
+
+        expect(t._id).toBeDefined();
+        console.log(t._id)
+    })
+
     it("Task Storage", async () => {
         const t = new TaskModel({ content: mockContent } )
 
