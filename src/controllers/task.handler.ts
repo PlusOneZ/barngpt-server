@@ -30,7 +30,7 @@ class TaskHandler {
         try {
             const t: Task = await this.taskService.createTask(taskData);
             res.status(201).json( { data: TaskHandler.taskStringify(t), message: "Task created" });
-            this.agentService.sendChatReq(this.agentService.createHook(t._id.toString()), {content: taskData.content}).then(
+            this.agentService.doTask(t).then(
                 () => console.log("Hook sent")
             ).catch(
                 (e) => console.error(`Error while sending hook: ${e}`)

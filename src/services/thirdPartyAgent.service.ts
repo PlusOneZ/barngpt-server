@@ -1,4 +1,4 @@
-import {TaskModel} from "../models/task.model";
+import {Task, TaskModel} from "../models/task.model";
 import { post } from "request";
 import dotenv from "dotenv";
 
@@ -31,15 +31,25 @@ class ThirdPartyAgentService {
         }
     }
 
-    public async sendChatReq(hook: string, data: {content: string}) {
+    public async doTask(taskData: Task) {
+        const hook = this.createHook(taskData._id.toString());
+        if (typeof taskData.content === "string") {
+            return this.sendChatReq(hook, {content: taskData.content});
+        } else if (taskData.content.task_type === "image_generation") {
+            return this.sendImageGenReq(hook,
+                {image_prompt: taskData.content.prompts[0]});
+        }
+    }
+
+    private async sendChatReq(hook: string, data: {content: string}) {
         // send request to third party agent
         const url = this.API_URL + "/task/chat"
         post(url, {json: {data: data, hook: hook}}, this.responseHandler(url));
     }
 
-    public async sendImageGenReq(hook: string, data: {image_prompt: string}) {
+    private async sendImageGenReq(hook: string, data: {image_prompt: string}) {
         // send a image generation request
-        const url = this.API_URL + "/api/task/image/generation"
+        const url = this.API_URL + "/task/image/generation"
         post(url, {json: {data: data, hook: hook}}, this.responseHandler(url))
     }
 
