@@ -12,13 +12,20 @@ const taskSchema = new Schema({
         required: true,
         validate: {
             validator: function (v: any) {
-                return (typeof v == "string") || ('task_type' in v && 'prompts' in v)
+                return (typeof v == "string") || ('prompts' in v)
             },
             message: (props: any) => `${props.value} does not compose a task content.`
         }
     },
+    task_type: {
+        type: String,
+        required: true,
+        default: "dummy",
+        enum: ["dummy", "chat", "image-generation"]
+    },
     status: {
         type: String,
+        required: true,
         default: "pending",
         enum: ["pending", "done", "failed"]
     },
