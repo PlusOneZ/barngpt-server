@@ -17,7 +17,11 @@ const taskSchema = new Schema({
             message: (props: any) => `${props.value} does not compose a task content.`
         }
     },
-    status: { type: String, default: "pending" },
+    status: {
+        type: String,
+        default: "pending",
+        enum: ["pending", "done", "failed"]
+    },
     // ownerId: { type: Schema.Types.UUID, ref: 'User' }, // user's ID
     results: [Schema.Types.Mixed]
 }, { timestamps: true })

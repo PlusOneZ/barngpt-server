@@ -27,7 +27,7 @@ class ThirdPartyAgentService {
                 console.error(`Error while sending request to ${url}: ${err}`);
                 // todo: add to records
             }
-            console.log(`Response from API: ${res}`);
+            console.log(`Response from API: ${body}`);
         }
     }
 
