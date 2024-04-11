@@ -33,24 +33,33 @@ class ThirdPartyAgentService {
 
     public async doTask(taskData: Task) {
         const hook = this.createHook(taskData._id.toString());
-        if (typeof taskData.content === "string") {
-            return this.sendChatReq(hook, {content: taskData.content});
-        } else if (taskData.content.task_type === "image_generation") {
+        if (taskData.taskType === "chat") {
+            return this.sendChatReq(hook, taskData.content.prompts);
+        } else if (taskData.taskType === "image-generation") {
             return this.sendImageGenReq(hook,
                 {image_prompt: taskData.content.prompts[0]});
+        } else {
+            // dummy task
+            return this.sendDummyReq(hook);
         }
     }
 
-    private async sendChatReq(hook: string, data: {content: string}) {
+    private async sendChatReq(hook: string, prompts: []) {
         // send request to third party agent
         const url = this.API_URL + "/task/chat"
-        post(url, {json: {data: data, hook: hook}}, this.responseHandler(url));
+        post(url, {json: {data: prompts, hook: hook}}, this.responseHandler(url));
     }
 
     private async sendImageGenReq(hook: string, data: {image_prompt: string}) {
         // send a image generation request
         const url = this.API_URL + "/task/image/generation"
         post(url, {json: {data: data, hook: hook}}, this.responseHandler(url))
+    }
+
+    private async sendDummyReq(hook: string) {
+        // send a dummy request
+        const url = this.API_URL
+        post(url, {json: {hook: hook}}, this.responseHandler(url))
     }
 
     /**

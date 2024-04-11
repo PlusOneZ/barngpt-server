@@ -12,12 +12,12 @@ const taskSchema = new Schema({
         required: true,
         validate: {
             validator: function (v: any) {
-                return (typeof v == "string") || ('prompts' in v)
+                return ('prompts' in v)
             },
             message: (props: any) => `${props.value} does not compose a task content.`
         }
     },
-    task_type: {
+    taskType: {
         type: String,
         required: true,
         default: "dummy",
