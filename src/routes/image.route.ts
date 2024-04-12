@@ -19,6 +19,7 @@ class ImageRoute implements Route {
             upload.single('image'),
             this.imageHandler.uploadResult
         );
+        this.router.get(`${this.path}s`, this.imageHandler.imageList);
     }
 }
 
