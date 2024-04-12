@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 
 
 class ImageServingHandler {
-    public uploadResult = (req: Request, res: Response, next: NextFunction) => {
+    public uploadResult = (req: any, res: Response, next: NextFunction) => {
         try {
             const res_url = `${req.protocol}://${req.get('host')}/image/${req.file!.filename!}`;
             res.status(201).json({
