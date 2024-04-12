@@ -3,10 +3,10 @@ import path from "path";
 import HttpException from "../exceptions/HttpException";
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
+    destination: function (req: any, file: any, cb: any) {
         cb(null, path.join(__dirname, '../../public/images'))
     },
-    filename: function (req, file, cb) {
+    filename: function (req: any, file: any, cb: any) {
         const suff = path.extname(file.originalname);
         cb(null, path.basename(file.originalname, suff) + '-' + Date.now() + suff)
     }
