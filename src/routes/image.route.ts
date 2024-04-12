@@ -20,6 +20,7 @@ class ImageRoute implements Route {
             this.imageHandler.uploadResult
         );
         this.router.get(`${this.path}s`, this.imageHandler.imageList);
+        this.router.post(`${this.path}/fromUrl`, this.imageHandler.saveFromUrl);
     }
 }
 

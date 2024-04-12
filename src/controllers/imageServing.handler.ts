@@ -1,16 +1,15 @@
 import {NextFunction, Request, Response} from "express";
-import * as fs from "fs";
-import path from "path";
+import ImageService from "../services/image.service";
 
 class ImageServingHandler {
+    private imageService = new ImageService();
+
     public uploadResult = (req: any, res: Response, next: NextFunction) => {
         try {
-            const res_url = `${req.protocol}://${req.get('host')}/image/${req.file!.filename!}`;
+            const resUrl = this.imageService.imageUrl(req.file!.filename!)
             res.status(201).json({
                 message: "Image uploaded",
-                data: {
-                    url: res_url
-                }
+                data: { url: resUrl }
             });
         } catch (e) {
             next(e)
@@ -23,7 +22,6 @@ class ImageServingHandler {
             {root: 'public/images'},
             (err) => {
                 res.status(404).json({message: "Image not found."});
-
             }
         );
     }
@@ -31,14 +29,20 @@ class ImageServingHandler {
     /**
      * Get a list of images, most recent 20 images will be ok.
      * for test.
-     * @param req
-     * @param res
-     * @param next
      */
     public imageList = (req: Request, res: Response, next: NextFunction) => {
-        const images = fs.readdirSync(path.join(__dirname, '../../public/images'))
-            .map((f) => `${req.protocol}://${req.get('host')}/image/${f}`);
+        const images = this.imageService.getImageList();
         res.status(200).json({data: images.slice(0, 20), message: "OK"});
+    }
+
+    public saveFromUrl = (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { url, filename } = req.body;
+            this.imageService.saveImageFromUrl(url, filename);
+            res.status(201).json({message: "Image saved"});
+        } catch (e) {
+            // next(e)
+        }
     }
 }
 

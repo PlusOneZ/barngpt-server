@@ -1,6 +1,8 @@
 import {Task, TaskModel} from "../models/task.model";
 import { post } from "request";
 import dotenv from "dotenv";
+import {OpenaiResponseModel} from "../models/openaiResponse.model";
+import ImageService from "./image.service";
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
@@ -9,6 +11,8 @@ class ThirdPartyAgentService {
     private readonly HOST: string;
     private readonly PORT: string;
     private tasks = TaskModel;
+    private openaiResponse = OpenaiResponseModel;
+    private imageService = new ImageService();
 
     constructor() {
         if (!process.env.THIRD_PARTY_AGENT_API) {
@@ -87,17 +91,34 @@ class ThirdPartyAgentService {
             return;
         }
         // option 1: only update the task status
-        const {results} = taskData;
+        const {results, apiResponse, status} = taskData;
+        const saveResults = results.map((r: any) => {
+            if (r.type === "image-generation") {
+                // save image (r.url) to 'public/images' with taskID as file name.
+                this.imageService.saveImageFromUrl(r.url, `${taskId}.png`, "/generated")
+                return {
+                    type: r.type,
+                    url: this.imageService.imageUrlWithSubDir("/generated", `${taskId}.png`)
+                }
+            }
+            return r
+        })
         if (results) {
             // update task status
             this.tasks.updateOne(
                 {_id: taskId},
                 {
-                    status: "done",
-                    $push: {results: { $each: results }}
+                    status: status,
+                    $push: {results: { $each: saveResults }}
                 },
             ).then(() => {
                 console.log(`Task ${taskId} updated.`);
+                if (apiResponse) {
+                    this.openaiResponse.create({
+                        taskId: taskId,
+                        response: apiResponse
+                    });
+                }
             }).catch((e) => {
                 console.error(`Error while updating Task ${taskId}: ${e}`);
                 // todo record this error
