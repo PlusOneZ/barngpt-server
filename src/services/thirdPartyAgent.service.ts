@@ -36,15 +36,25 @@ class ThirdPartyAgentService {
         if (taskData.taskType === "chat") {
             return this.sendChatReq(hook, taskData.content.prompts);
         } else if (taskData.taskType === "image-generation") {
-            return this.sendImageGenReq(hook,
-                {image_prompt: taskData.content.prompts[0]});
+            return this.sendImageGenReq(
+                hook,
+                {
+                    image_prompt:
+                        ThirdPartyAgentService.composeImagePrompts(taskData.content.prompts)
+                });
         } else {
             // dummy task
             return this.sendDummyReq(hook);
         }
     }
 
-    private async sendChatReq(hook: string, prompts: []) {
+    private static composeImagePrompts(prompts: any) : string {
+        return prompts.reduce((prompt : string, v: any) => {
+            return prompt + (v.role === "user") ? v.content : ""
+        }, "")
+    }
+
+    private async sendChatReq(hook: string, prompts: any) {
         // send request to third party agent
         const url = this.API_URL + "/task/chat"
         post(url, {json: {data: prompts, hook: hook}}, this.responseHandler(url));
