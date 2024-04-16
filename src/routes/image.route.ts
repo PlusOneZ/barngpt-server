@@ -1,7 +1,7 @@
 import {Router} from "express"
 import Route from "../interfaces/Route.interface";
 import ImageServingHandler from "../controllers/imageServing.handler";
-import {upload} from "../middlewares/image.middleware";
+import {upload} from "../middlewares/upload.middleware";
 
 class ImageRoute implements Route {
     public path = '/image';

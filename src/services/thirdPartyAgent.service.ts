@@ -1,8 +1,9 @@
 import {Task, TaskModel} from "../models/task.model";
-import { post } from "request";
+import axios from "axios";
 import dotenv from "dotenv";
 import {OpenaiResponseModel} from "../models/openaiResponse.model";
 import ImageService from "./image.service";
+import {composePrompts} from "../utils/prompts";
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
@@ -26,54 +27,83 @@ class ThirdPartyAgentService {
     }
 
     private readonly responseHandler = (url: string) => {
-        return (err: any, res: any, body: any) => {
-            if (err) {
-                console.error(`Error while sending request to ${url}: ${err}`);
-                // todo: add to records
-            }
-            console.log(`Response from API: ${body}`);
+        return (response: any) => {
+            console.log(`Response (success) from URL ${url}: ${response}`);
+        }
+    }
+
+    private readonly errorHandler = (url: string, data: any) => {
+        return (error: any) => {
+            console.log(`Error from URL ${url}: ${error}`);
         }
     }
 
     public async doTask(taskData: Task) {
         const hook = this.createHook(taskData._id.toString());
-        if (taskData.taskType === "chat") {
-            return this.sendChatReq(hook, taskData.content.prompts);
-        } else if (taskData.taskType === "image-generation") {
-            return this.sendImageGenReq(
-                hook,
-                {
-                    image_prompt:
-                        ThirdPartyAgentService.composeImagePrompts(taskData.content.prompts)
+        switch (taskData.taskType) {
+            case "chat":
+                return this.sendChatReq(hook, taskData.content.prompts);
+            case "image-generation":
+                return this.sendImageGenReq(hook, {
+                        image_prompt: composePrompts(taskData.content.prompts)
+                    });
+            case "image-recognition":
+                return this.sendVisionReq(hook, taskData.content.prompts);
+            case "audio-generation":
+                return this.sendAudioGenReq(hook, {
+                    text: composePrompts(taskData.content.prompts)
                 });
-        } else {
-            // dummy task
-            return this.sendDummyReq(hook);
+            case "audio-recognition":
+                return this.sendAudioConvertingReq(hook, {
+                    audio: taskData.content.prompts[0].content}
+                );
+            default:
+                return this.sendDummyReq(hook);
         }
     }
 
-    private static composeImagePrompts(prompts: any) : string {
-        return prompts.reduce((prompt : string, v: any) => {
-            return prompt + (v.role === "user") ? v.content : ""
-        }, "")
-    }
-
     private async sendChatReq(hook: string, prompts: any) {
-        // send request to third party agent
         const url = this.API_URL + "/task/chat"
-        post(url, {json: {data: prompts, hook: hook}}, this.responseHandler(url));
+        axios.post(url, {data: prompts, hook: hook})
+            .then(this.responseHandler(url))
+            .catch(this.errorHandler(url, prompts));
     }
 
     private async sendImageGenReq(hook: string, data: {image_prompt: string}) {
         // send a image generation request
         const url = this.API_URL + "/task/image/generation"
-        post(url, {json: {data: data, hook: hook}}, this.responseHandler(url))
+        axios.post(url, {json: {data: data, hook: hook}})
+            .then(this.responseHandler(url))
+            .catch(this.errorHandler(url, data));
+    }
+
+    private async sendVisionReq(hook: string, prompts: any) {
+        const url = this.API_URL + "/task/vision"
+        axios.post(url, {data: prompts, hook: hook})
+            .then(this.responseHandler(url))
+            .catch(this.errorHandler(url, prompts));
+    }
+
+    private async sendAudioGenReq(hook: string, data: {text: string}) {
+        const url = this.API_URL + "/task/tts"
+        axios.post(url, {data: data, hook: hook})
+            .then(this.responseHandler(url))
+            .catch(this.errorHandler(url, data));
+    }
+
+    private async sendAudioConvertingReq(hook: string, data: {audio: string}) {
+        const url = this.API_URL + "/task/stt"
+        axios.post(url, {data: data, hook: hook})
+            .then(this.responseHandler(url))
+            .catch(this.errorHandler(url, data));
     }
 
     private async sendDummyReq(hook: string) {
         // send a dummy request
         const url = this.API_URL
-        post(url, {json: {hook: hook}}, this.responseHandler(url))
+        axios.post(url, {json: {hook: hook}})
+            .then(this.responseHandler(url))
+            .catch(this.errorHandler(url, "dummy task"));
     }
 
     /**

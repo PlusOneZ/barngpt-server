@@ -7,11 +7,13 @@ const storage = multer.diskStorage({
         cb(null, path.join(__dirname, '../../public/images'))
     },
     filename: function (req: any, file: any, cb: any) {
-        const suff = path.extname(file.originalname);
-        cb(null, path.basename(file.originalname, suff) + '-' + Date.now() + suff)
+        const suffix = path.extname(file.originalname);
+        cb(null, path.basename(file.originalname, suffix) + '-' + Date.now() + suffix)
     }
 });
 
+// todo: support not only image file.
+// images can be passes with base64 encoding.
 const imageFilter = (req: any, file: any, cb: FileFilterCallback) => {
     if (!file.originalname.match(/\.(JPG|jpg|jpeg|png)$/)) {
         return cb(new HttpException(400, 'Only image files are allowed!'));
