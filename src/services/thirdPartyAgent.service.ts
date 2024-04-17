@@ -1,9 +1,9 @@
-import {Task, TaskModel} from "../models/task.model";
+import {Prompt, Task, TaskModel} from "../models/task.model";
 import axios from "axios";
 import dotenv from "dotenv";
 import {OpenaiResponseModel} from "../models/openaiResponse.model";
 import ImageService from "./image.service";
-import {composePrompts} from "../utils/prompts";
+import {composePrompts, removePromptId} from "../utils/prompts";
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
@@ -40,18 +40,19 @@ class ThirdPartyAgentService {
 
     public async doTask(taskData: Task) {
         const hook = this.createHook(taskData._id.toString());
+        const prompts = removePromptId(taskData.content.prompts);
         switch (taskData.taskType) {
             case "chat":
-                return this.sendChatReq(hook, taskData.content.prompts);
+                return this.sendChatReq(hook, prompts);
             case "image-generation":
                 return this.sendImageGenReq(hook, {
-                        image_prompt: composePrompts(taskData.content.prompts)
+                        image_prompt: composePrompts(prompts)
                     });
             case "image-recognition":
-                return this.sendVisionReq(hook, taskData.content.prompts);
+                return this.sendVisionReq(hook, prompts);
             case "audio-generation":
                 return this.sendAudioGenReq(hook, {
-                    text: composePrompts(taskData.content.prompts)
+                    text: composePrompts(prompts)
                 });
             case "audio-recognition":
                 return this.sendAudioConvertingReq(hook, {
@@ -79,6 +80,7 @@ class ThirdPartyAgentService {
 
     private async sendVisionReq(hook: string, prompts: any) {
         const url = this.API_URL + "/task/vision"
+        console.log(prompts)
         axios.post(url, {data: prompts, hook: hook})
             .then(this.responseHandler(url))
             .catch(this.errorHandler(url, prompts));

@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 
 const promptSchema = new Schema({
     role: { type: String, default: "user" },
-    content: { type: String, required: true }
+    content: { type: Schema.Types.Mixed, required: true }
 });
 
 const taskSchema = new Schema({
@@ -34,6 +34,13 @@ const taskSchema = new Schema({
     // ownerId: { type: Schema.Types.UUID, ref: 'User' }, // user's ID
     results: [Schema.Types.Mixed]
 }, { timestamps: true })
+
+promptSchema.set("toJSON", {
+    virtuals: true,
+    transform: (doc, ret, options) => {
+        delete ret._id;
+    },
+})
 
 type Task = InferSchemaType<typeof taskSchema>;
 type Prompt = InferSchemaType<typeof promptSchema>;

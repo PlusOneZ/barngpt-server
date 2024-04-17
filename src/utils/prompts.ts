@@ -9,6 +9,16 @@ function composePrompts(prompts: any) : string {
     }, "")
 }
 
+function removePromptId(prompts: any) {
+    return prompts.map((p: any) => {
+        return {
+            role: p.role,
+            content: p.content
+        }
+    })
+}
+
 export {
-    composePrompts
+    composePrompts,
+    removePromptId
 }
