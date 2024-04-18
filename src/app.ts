@@ -3,6 +3,7 @@ import Route from "./interfaces/Route.interface";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import errorMiddleware from "./middlewares/error.middleware";
+import bodyParser from "body-parser";
 
 class App {
     public app: express.Application;
@@ -41,8 +42,14 @@ class App {
         if (this.env === "development") {
 
         }
-        this.app.use(express.urlencoded({ extended: true }));
-        this.app.use(express.json());
+        // this.app.use(express.urlencoded({ extended: true }));
+        // this.app.use(express.json());
+        this.app.use(bodyParser.json({limit: '5mb'}));
+        this.app.use(bodyParser.urlencoded({
+            extended: true,
+            limit: '5mb',
+            parameterLimit: 50000,
+        }));
     }
 
     private initRoutes(routes: Route[]) {
