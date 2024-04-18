@@ -103,7 +103,7 @@ class ThirdPartyAgentService {
     private async sendDummyReq(hook: string) {
         // send a dummy request
         const url = this.API_URL + "/task/dummy"
-        axios.post(url, {json: {hook: hook}})
+        axios.post(url, {hook: hook})
             .then(this.responseHandler(url))
             .catch(this.errorHandler(url, "dummy task"));
     }
