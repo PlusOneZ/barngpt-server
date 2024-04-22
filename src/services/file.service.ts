@@ -49,13 +49,15 @@ class FileService {
     }
 
     public audioPathFromTask(taskId: string) {
-        return path.join(__dirname, '../../public/audios', taskId + '.mp3');
+        return path.join(__dirname, '../../public/audio', taskId + '.mp3');
     }
 
     public async saveAudioFile(openaiAudio: any, taskId: string) {
         const buffer = Buffer.from(await openaiAudio.arrayBuffer());
-        const stream = fs.createWriteStream(this.audioPathFromTask(taskId));
-        stream.write(buffer);
+        await fs.promises.writeFile(
+            this.audioPathFromTask(taskId),
+            buffer
+        )
         return this.audioUrl(taskId + '.mp3');
     }
 }
