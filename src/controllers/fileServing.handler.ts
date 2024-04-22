@@ -1,6 +1,7 @@
 import {NextFunction, Request, Response} from "express";
 import FileService from "../services/file.service";
 import HttpException from "../exceptions/HttpException";
+import path from "path";
 
 class FileServingHandler {
     private fileService = new FileService();
@@ -33,9 +34,11 @@ class FileServingHandler {
         console.log(req.params.filename, req.params.type)
         res.sendFile(
             req.params.filename,
-            {root: `public/${req.params.type}`},
+            {root: path.join(__dirname, '../../public', req.params.type)},
             (err) => {
-                next(new HttpException(404, "File not found."))
+                if (err) {
+                    next(new HttpException(404, "File not found."))
+                }
             }
         );
     }
