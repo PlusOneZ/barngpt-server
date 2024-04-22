@@ -54,10 +54,8 @@ class FileService {
 
     public async saveAudioFile(openaiAudio: any, taskId: string) {
         const buffer = Buffer.from(await openaiAudio.arrayBuffer());
-        await fs.promises.writeFile(
-            this.audioPathFromTask(taskId),
-            buffer
-        )
+        const stream = fs.createWriteStream(this.audioPathFromTask(taskId));
+        stream.write(buffer);
         return this.audioUrl(taskId + '.mp3');
     }
 }
