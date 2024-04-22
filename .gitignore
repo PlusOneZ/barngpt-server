@@ -15,3 +15,5 @@ logs/*
 *.jpg
 *.jpeg
 *.png
+.mp3
+.wav

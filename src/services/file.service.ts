@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import axios from "axios";
 
-class ImageService {
+class FileService {
     private readonly HOST: string;
     private readonly PORT: string;
 
@@ -12,21 +12,30 @@ class ImageService {
     }
 
     public imageUrl(filename: string) {
-        return `${this.HOST}:${this.PORT}/image/${filename}`;
+        return `${this.HOST}:${this.PORT}/file/image/${filename}`;
+    }
+
+    public audioUrl(filename: string) {
+        return `${this.HOST}:${this.PORT}/file/audio/${filename}`;
     }
 
     public imageUrlWithSubDir(subDir: string, filename: string) {
-        return `${this.HOST}:${this.PORT}/image${subDir}/${filename}`;
+        return `${this.HOST}:${this.PORT}/file/image${subDir}/${filename}`;
     }
 
     public getImageList() {
-        return fs.readdirSync(path.join(__dirname, '../../public/images'))
+        return fs.readdirSync(path.join(__dirname, '../../public/image'))
             .map((f) => this.imageUrl(f));
+    }
+
+    public getAudioList() {
+        return fs.readdirSync(path.join(__dirname, '../../public/audio'))
+            .map((f) => this.audioUrl(f));
     }
 
     public saveImageFromUrl(url: string, filename: string, subDir: string = "") {
         const stream = fs.createWriteStream(
-            path.join(__dirname, '../../public/images' + subDir, filename),
+            path.join(__dirname, '../../public/image' + subDir, filename),
         );
         stream.on('open', () => {
             axios({
@@ -38,6 +47,10 @@ class ImageService {
             });
         })
     }
+
+    public audioPathFromTask(taskId: string) {
+        return path.join(__dirname, '../../public/audios', taskId + '.mp3');
+    }
 }
 
-export default ImageService;
+export default FileService;

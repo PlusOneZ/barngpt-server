@@ -2,7 +2,7 @@ import {Prompt, Task, TaskModel} from "../models/task.model";
 import axios from "axios";
 import dotenv from "dotenv";
 import {OpenaiResponseModel} from "../models/openaiResponse.model";
-import ImageService from "./image.service";
+import FileService from "./file.service";
 import {composePrompts, removePromptId} from "../utils/prompts";
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
@@ -13,7 +13,7 @@ class ThirdPartyAgentService {
     private readonly PORT: string;
     private tasks = TaskModel;
     private openaiResponse = OpenaiResponseModel;
-    private imageService = new ImageService();
+    private imageService = new FileService();
 
     constructor() {
         if (!process.env.THIRD_PARTY_AGENT_API) {
@@ -126,11 +126,11 @@ class ThirdPartyAgentService {
         const {results, apiResponse, status} = taskData;
         const saveResults = results.map((r: any) => {
             if (r.type === "image-generation") {
-                // save image (r.url) to 'public/images' with taskID as file name.
-                this.imageService.saveImageFromUrl(r.url, `${taskId}.png`, "/generated")
+                // save image (r.url) to 'public/image' with taskID as file name.
+                this.imageService.saveImageFromUrl(r.url, `${taskId}.png`)
                 return {
                     type: r.type,
-                    url: this.imageService.imageUrlWithSubDir("/generated", `${taskId}.png`)
+                    url: this.imageService.imageUrl(`${taskId}.png`)
                 }
             }
             return r
