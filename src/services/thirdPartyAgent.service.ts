@@ -101,7 +101,7 @@ class ThirdPartyAgentService {
         } else if (rateControl.status === 200) {
             const mp3 = await this.audioService.textToSpeech(text);
             results = mp3 ?
-                [{type: "audio-generation", "url": this.fileService.saveAudioFile(mp3, taskId)}]
+                [{type: "audio-generation", "url": await this.fileService.saveAudioFile(mp3, taskId)}]
                 : [{type: "error", "content": "Failed to generate audio."}];
             state = mp3 ? "done" : "failed";
             response = mp3;
