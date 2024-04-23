@@ -101,7 +101,7 @@ class ThirdPartyAgentService {
         } else if (rateControl.status === 200) {
             const mp3 = await this.audioService.textToSpeech(text);
             results = mp3 ?
-                [{type: "audio-generation", "url": mp3}]
+                [{type: "audio-generation", "url": this.fileService.saveAudioFile(mp3, taskId)}]
                 : [{type: "error", "content": "Failed to generate audio."}];
             state = mp3 ? "done" : "failed";
             response = mp3;
@@ -204,7 +204,6 @@ class ThirdPartyAgentService {
                 }
             }).catch((e) => {
                 console.error(`Error while updating Task ${taskId}: ${e}`);
-                // todo record this error
             });
         }
         // option 2: push notification to the user
