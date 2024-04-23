@@ -1,4 +1,4 @@
-import {Prompt, Task, TaskModel} from "../models/task.model";
+import {Task, TaskModel} from "../models/task.model";
 import axios from "axios";
 import dotenv from "dotenv";
 import {OpenaiResponseModel} from "../models/openaiResponse.model";
@@ -7,7 +7,7 @@ import {composePrompts, removePromptId} from "../utils/prompts";
 import AudioService from "./audio.service";
 import OpenAI from "openai";
 
-dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
+dotenv.config({path: `.env.${process.env.NODE_ENV}`})
 
 class ThirdPartyAgentService {
     public readonly API_URL: string;
@@ -17,7 +17,7 @@ class ThirdPartyAgentService {
     private openaiResponse = OpenaiResponseModel;
     private fileService = new FileService();
     private audioService = new AudioService();
-    private openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+    private openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY!});
 
     constructor() {
         if (!process.env.THIRD_PARTY_AGENT_API) {
@@ -51,16 +51,14 @@ class ThirdPartyAgentService {
                 return this.sendChatReq(hook, prompts);
             case "image-generation":
                 return this.sendImageGenReq(hook, {
-                        image_prompt: composePrompts(prompts)
-                    });
+                    image_prompt: composePrompts(prompts)
+                });
             case "image-recognition":
                 return this.sendVisionReq(hook, prompts);
             case "audio-generation":
                 return this.textToSpeechCall(taskId, composePrompts(prompts))
             case "audio-recognition":
-                return this.sendAudioConvertingReq(hook, {
-                    audio: taskData.content.prompts[0].content}
-                );
+                return this.speechToTextCall(taskId, prompts[0].content)
             default:
                 return this.sendDummyReq(hook);
         }
@@ -73,7 +71,7 @@ class ThirdPartyAgentService {
             .catch(this.errorHandler(url, prompts));
     }
 
-    private async sendImageGenReq(hook: string, data: {image_prompt: string}) {
+    private async sendImageGenReq(hook: string, data: { image_prompt: string }) {
         // send a image generation request
         const url = this.API_URL + "/task/image/generation"
         axios.post(url, {json: {data: data, hook: hook}})
@@ -90,38 +88,44 @@ class ThirdPartyAgentService {
     }
 
     private async textToSpeechCall(taskId: string, text: string) {
-        try {
-            console.log(`Generating audio for task ${taskId}`);
-            const mp3 = await this.openai.audio.speech.create({
-                model: "tts-1",
-                voice: "alloy",
-                input: text
-            })
-            console.log("return from textToSpeech");
-            if (mp3) {
-                const url = await this.fileService.saveAudioFile(mp3, taskId);
-                this.taskUpdate(
-                    taskId,
-                    {
-                        results: [{type: "audio-generation", "url": url}],
-                        status: "done",
-                        apiResponse: mp3
-                    }
-                );
-                console.log("Audio generation done.");
-            } else {
-                throw new Error("Error while converting text to speech.");
+        console.log(`Generating audio for task ${taskId}`);
+        const mp3 = await this.audioService.textToSpeech(text);
+        const results = mp3 ?
+            [{type: "audio-generation", "url": await this.fileService.saveAudioFile(mp3, taskId)}]
+            : [];
+        await this.taskUpdate(
+            taskId,
+            {
+                results: results,
+                status: mp3 ? "done" : "failed",
+                apiResponse: mp3
             }
-        } catch (e) {
-            console.error(`Error while generating audio: ${e}`);
-        }
+        );
+        console.log(`Audio generation for ${taskId} done.`);
     }
 
-    private async sendAudioConvertingReq(hook: string, data: {audio: string}) {
-        const url = this.API_URL + "/task/stt"
-        axios.post(url, {data: data, hook: hook})
-            .then(this.responseHandler(url))
-            .catch(this.errorHandler(url, data));
+    private async speechToTextCall(taskId: string, audioPath: string) {
+        console.log(`Recognizing audio for task ${taskId}`)
+        const audioName = audioPath.split('/').pop();
+        try {
+            const resp = await this.audioService.speechToText(audioName!);
+            const text = resp.text!;
+            const results = resp ?
+                [{type: "audio-recognition", "text": text}]
+                : [];
+            await this.taskUpdate(
+                taskId,
+                {
+                    results: results,
+                    status: resp ? "done" : "failed",
+                    apiResponse: resp
+                }
+            );
+            console.log(`Audio recognition for ${taskId} done.`);
+        } catch (e) {
+            console.error(`Error while recognizing audio ${audioName}: ${e}`);
+            await this.taskUpdate(taskId, { results: [], status: "rejected"});
+        }
     }
 
     private async sendDummyReq(hook: string) {
@@ -135,7 +139,7 @@ class ThirdPartyAgentService {
     /**
      * Create a webhook of route /task/:id/hook
      */
-    public createHook(taskId: string) : string {
+    public createHook(taskId: string): string {
         const hook: string = `http://${this.HOST}:${this.PORT}/task/${taskId}/hook`;
         // console.log(`Hook created: ${hook}`);
         return hook;
@@ -165,7 +169,7 @@ class ThirdPartyAgentService {
                 {_id: taskId},
                 {
                     status: status,
-                    $push: {results: { $each: saveResults }}
+                    $push: {results: {$each: saveResults}}
                 },
             ).then(() => {
                 console.log(`Task ${taskId} updated.`);

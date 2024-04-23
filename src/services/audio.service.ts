@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import fs from "fs";
 import dotenv from "dotenv";
+import path from "path";
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
@@ -15,9 +16,14 @@ class AudioService {
         })
     }
 
-    public speechToText(audioPath: string) {
+    public speechToText(audioFilename: string) {
+        // check if audio file exists
+        const apath = path.join(__dirname, '../../public/audio', audioFilename)
+        if (!fs.existsSync(apath)) {
+            throw new Error("Audio file not found.")
+        }
         return this.openai.audio.transcriptions.create({
-            file: fs.createReadStream(audioPath),
+            file: fs.createReadStream(apath),
             model: "whisper-1"
         })
     }
