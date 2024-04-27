@@ -1,14 +1,28 @@
-import { Schema, InferSchemaType, model } from "mongoose";
+import { Schema, InferSchemaType, model, Model } from "mongoose";
 import { randomUUID } from "crypto"
-import jwt from "jsonwebtoken"
 import bcrypt from 'bcryptjs'
 import Joi from 'joi'
 
-const userSchema = new Schema({
-    _id: {
-        type: Schema.Types.UUID,
-        default: () => randomUUID()
-    },
+interface IUser {
+    provider: string,
+    username: string,
+    email: string,
+    password: string,
+    name: string,
+    avatar: string,
+    bio: string,
+    googleId: string,
+    facebookId: string
+}
+
+interface IUserMethods {
+    registerUser(user: any, cb: any): void,
+    comparePassword(pwd: string, cb: any): void
+}
+
+type UserModel = Model<IUser, {}, IUserMethods>;
+
+const userSchema = new Schema<IUser, UserModel, IUserMethods>({
     provider: {
         type: Schema.Types.String,
         required: true,
@@ -34,9 +48,9 @@ const userSchema = new Schema({
         minlength: 6,
         maxlength: 60,
     },
-    name: String,
-    avatar: String,
-    bio: String,
+    name: Schema.Types.String,
+    avatar: Schema.Types.String,
+    bio: Schema.Types.String,
     // google
     googleId: {
         type: String,
@@ -52,8 +66,6 @@ const userSchema = new Schema({
     // todo: link to tasks
 }, { timestamps: true })
 
-type User = InferSchemaType<typeof userSchema>;
-
 userSchema.methods.toJSON = function () {
     return {
         id: this._id,
@@ -68,19 +80,7 @@ userSchema.methods.toJSON = function () {
     };
 };
 
-const secretOrKey = process.env.JWT_SECRET
-
-userSchema.methods.generateJWT = function () {
-    const token = jwt.sign({
-        expiresIn: '12h',
-        id: this._id,
-        provider: this.provider,
-        email: this.email,
-    }, secretOrKey);
-    return token;
-}
-
-userSchema.methods.registerUser = (newUser, callback: any) => {
+userSchema.method("registerUser", (newUser, callback: any) => {
     bcrypt.genSalt(10, (err, salt) => {
         bcrypt.hash(newUser.password, salt, (errh, hash) => {
             if (err || errh) {
@@ -90,16 +90,16 @@ userSchema.methods.registerUser = (newUser, callback: any) => {
             newUser.save(callback)
         })
     })
-}
+});
 
-userSchema.methods.comparePassword = function (candidatePassword, callback: any) {
+userSchema.method("comparePassword", function (candidatePassword: string, callback: any) {
     bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
         if (err) return callback(err);
         callback(null, isMatch);
     });
-};
+});
 
-async function hashPassword(password) {
+async function hashPassword(password: string) {
     const saltRounds = 10;
 
     const hashedPassword = await new Promise((resolve, reject) => {
@@ -112,7 +112,7 @@ async function hashPassword(password) {
     return hashedPassword;
 }
 
-const validateUser = (user) => {
+const validateUser = (user: IUser) => {
     const schema = Joi.object({
         avatar: Joi.any(),
         name: Joi.string().min(2).max(30).required(),
@@ -127,11 +127,11 @@ const validateUser = (user) => {
     return schema.validate(user);
 };
 
-const UserModel = model('User', userSchema)
+const UserModel = model<IUser, UserModel>('User', userSchema)
 
 export {
     UserModel,
-    User,
+    IUser,
     validateUser,
     hashPassword
 }
