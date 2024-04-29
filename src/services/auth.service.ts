@@ -66,8 +66,8 @@ class AuthService {
                     avatar: "", // todo: add default
                 });
 
-                newUser.registerUser(newUser, (err: Error | null, user: any) => {
-                    if (err) throw err;
+                newUser.registerUser(newUser, (user: any) => {
+                    if (!user) throw new HttpException(500, "Register failed.");
                     res.json({ message: 'Register success.' }); // just redirect to login
                 });
             } catch (err) {

@@ -80,14 +80,14 @@ userSchema.methods.toJSON = function () {
     };
 };
 
-userSchema.method("registerUser", (newUser, callback: any) => {
+userSchema.method("registerUser",  (newUser, callback: any) => {
     bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newUser.password, salt, (errh, hash) => {
+        bcrypt.hash(newUser.password, salt, async (errh, hash) => {
             if (err || errh) {
                 console.log(err, errh)
             }
             newUser.password = hash;
-            newUser.save(callback)
+            await newUser.save().then(callback)
         })
     })
 });
