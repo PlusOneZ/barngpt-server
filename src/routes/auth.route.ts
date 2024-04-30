@@ -28,6 +28,11 @@ class AuthRoute implements Route {
             this.authHandler.logout
         )
 
+        routes.get(
+            '/test/jwt',
+            this.authHandler.requireAuth
+        )
+
         // Google
         routes.get(
             '/google',

@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import errorMiddleware from "./middlewares/error.middleware";
 import bodyParser from "body-parser";
+import passportMiddleware from "./middlewares/passport.middleware";
 
 class App {
     public app: express.Application;
@@ -50,6 +51,7 @@ class App {
             limit: '5mb',
             parameterLimit: 50000,
         }));
+        this.app.use(passportMiddleware.initialize())
     }
 
     private initRoutes(routes: Route[]) {

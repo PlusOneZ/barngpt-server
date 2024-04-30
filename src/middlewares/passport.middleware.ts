@@ -6,6 +6,9 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth2";
 
 import { UserModel } from "../models/user";
 import { loginSchema } from "../utils/validators";
+import dotenv from "dotenv";
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV}`});
 
 const localLogin = new PassportLocalStrategy(
     {
@@ -26,14 +29,13 @@ const localLogin = new PassportLocalStrategy(
                 return done(null, false, { message: "Email does not exists"});
             }
 
-            user.comparePassword(password, function (err, isMatch) {
+            user.comparePassword(password, function (err: Error | null, isMatch: boolean) {
                 if (err) {
                     return done(err);
                 }
                 if (!isMatch) {
                     return done(null, false, { message: "Incorrect password" })
                 }
-
                 return done(null, user)
             })
         } catch (err) {
@@ -42,14 +44,12 @@ const localLogin = new PassportLocalStrategy(
     }
 )
 
-const secretOrKey = process.env.JWT_SECRET;
-
 const jwtLogin = new JwtStrategy(
     {
         jwtFromRequest: ExtractJwt.fromHeader('x-auth-token'),
-        secretOrKey
+        secretOrKey: process.env.JWT_SECRET!
     },
-    async (payload, done) => {
+    async (payload: any, done: any) => {
         try {
             const user = await UserModel.findById(payload.id);
 
@@ -68,9 +68,9 @@ const serverUrl = `https://${process.env.HOST}:${process.env.PORT}`
 
 const facebookLogin = new FacebookStrategy(
     {
-        clientID: process.env.FACEBOOK_APP_ID,
-        clientSecret: process.env.FACEBOOK_SECRET,
-        callbackURL: `${serverUrl}${process.env.FACEBOOK_CALLBACK_URL}`,
+        clientID: process.env.FACEBOOK_APP_ID!,
+        clientSecret: process.env.FACEBOOK_SECRET!,
+        callbackURL: `${serverUrl}${process.env.FACEBOOK_CALLBACK_URL!}`,
         profileFields: [
             'id',
             'email',
@@ -118,12 +118,12 @@ const facebookLogin = new FacebookStrategy(
 // google strategy
 const googleLogin = new GoogleStrategy(
     {
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: `${serverUrl}${process.env.GOOGLE_CALLBACK_URL}`,
+        clientID: process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        callbackURL: `${serverUrl}${process.env.GOOGLE_CALLBACK_URL!}`,
         proxy: true,
     },
-    async (accessToken, refreshToken, profile, done) => {
+    async (accessToken: string, refreshToken: string, profile: any, done: any) => {
         // console.log(profile);
         try {
             const oldUser = await UserModel.findOne({ email: profile.email });
@@ -155,3 +155,5 @@ passport.use(localLogin)
 passport.use(jwtLogin)
 passport.use(facebookLogin)
 passport.use(googleLogin)
+
+export default passport
