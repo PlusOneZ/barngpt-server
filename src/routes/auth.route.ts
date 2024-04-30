@@ -30,7 +30,10 @@ class AuthRoute implements Route {
 
         routes.get(
             '/test/jwt',
-            this.authHandler.requireAuth
+            this.authHandler.requireAuth,
+            (req: any, res: any) => {
+                res.send({ message: 'You are authenticated' })
+            }
         )
 
         // Google

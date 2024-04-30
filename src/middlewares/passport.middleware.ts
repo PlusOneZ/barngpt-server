@@ -46,21 +46,22 @@ const localLogin = new PassportLocalStrategy(
 
 const jwtLogin = new JwtStrategy(
     {
-        jwtFromRequest: ExtractJwt.fromHeader('x-auth-token'),
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         secretOrKey: process.env.JWT_SECRET!
     },
     async (payload: any, done: any) => {
-        try {
-            const user = await UserModel.findById(payload.id);
-
+        UserModel.findOne({ "email": payload.email }).then(function ( user) {
+            console.error(`payload: ${payload}`)
             if (user) {
-                done(null, user);
+                console.log(`user: ${user}`)
+                return done(null, user)
             } else {
-                done(null, false);
+                return done(null, false)
             }
-        } catch (err) {
-            done(err, false);
-        }
+        }).catch(function (err) {
+            return done(err, false)
+        });
+
     },
 );
 

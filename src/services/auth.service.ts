@@ -10,11 +10,11 @@ class AuthService {
 
     public requireLocalAuth = (req: Request, res: Response, next: NextFunction) => {
         passport.authenticate('local', (err: Error | null, user: any, info: any) => {
-            console.log(err, user)
+            // console.log(err, user)
             if (err) {
                 return next(err);
             }
-            console.log(info)
+            // console.log(info)
             if (!user) {
                 return res.status(422).send(info);
             }
@@ -86,11 +86,20 @@ class AuthService {
     }
 
     public requireAuth = (req: Request, res: Response, next: NextFunction) => {
-        console.log(req.headers)
-        passport.authenticate("jwt", (err: Error | null, user: any, info: any) => {
-            console.log(err, user, info)
-            res.send(info)
-        })
+        // TODO: Fix this
+        passport.authenticate("jwt", (err: Error | null, user: any) => {
+            console.log("Authenticating with jwt...")
+            // console.log(err, user)
+            if (err) {
+                console.log(err)
+                return res.status(401).json({ status: 'error', code: 'unauthorized' })
+            }
+            if (!user) {
+                return res.status(401).json({ status: 'error', code: 'unauthorized' })
+            } else {
+                return next()
+            }
+        })(req, res, next);
     }
 
 }
