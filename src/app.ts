@@ -6,15 +6,16 @@ import errorMiddleware from "./middlewares/error.middleware";
 import bodyParser from "body-parser";
 import passportMiddleware from "./middlewares/passport.middleware";
 
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
+
 class App {
     public app: express.Application;
     public port: (string | number | undefined);
     private env: (string | undefined);
 
     constructor(routes: Route[]) {
-        dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
         this.app = express();
-        this.port = process.env.PORT ? "3000" : process.env.PORT;
+        this.port = process.env.PORT ? process.env.PORT : "3000";
         this.env = process.env.NODE_ENV ? "development" : process.env.NODE_ENV;
 
         this.initDatabaseConnection();
