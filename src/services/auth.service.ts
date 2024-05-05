@@ -36,8 +36,9 @@ class AuthService {
     public after3rdLogin = (req: Request, res: Response) => {
         try {
             const token = generateJWT(req.user);
-            res.cookie('x-auth-cookie', token);
-            res.redirect(req.url); // todo: verify this
+            res.header('Authentication', "Bearer " + token);
+            // res.cookie('x-auth-cookie', token);
+            res.redirect('/'); // todo: verify this
         } catch (err) {
             throw new HttpException(401, "Authentication Failed")
         }
