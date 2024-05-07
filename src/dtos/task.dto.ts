@@ -10,16 +10,22 @@ export class CreateTaskDto {
 
     public static fromJson(json: any) {
         // read json content and convert to desired form
-        if (!("content" in json) || !("prompts" in json.content)) {
+        // TODO re-write with joi
+        try {
+            var _ = !("content" in json) || !("prompts" in json.content)
+            if (_) throw new Error()
+        } catch (e) {
             throw new HttpException(400, "Invalid prompt format.");
         }
         const prompts = json.content.prompts.map( (p: any) => {
             if (typeof p === "string") {
                 return {role: "user", content: p}
-            } else if ("content" in p) {
-                return p
             } else {
-                throw new HttpException(400, "Invalid prompt format.");
+                try {
+                    if ("content" in p) return p
+                } catch (e) {
+                    throw new HttpException(400, "Invalid prompt format.");
+                }
             }
         })
 
