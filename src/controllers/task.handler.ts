@@ -27,8 +27,8 @@ class TaskHandler {
     }
 
     public newTask = async (req: Request, res: Response, next: NextFunction) => {
-        const taskData = CreateTaskDto.fromJson(req.body);
         try {
+            const taskData = CreateTaskDto.fromJson(req.body);
             const t: Task = await this.taskService.createTask(taskData);
             res.status(201).json( { data: TaskHandler.taskStringify(t), message: "Task created" });
             this.agentService.doTask(t).then(
