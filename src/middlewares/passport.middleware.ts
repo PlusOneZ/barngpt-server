@@ -65,7 +65,7 @@ const jwtLogin = new JwtStrategy(
     },
 );
 
-const serverUrl = `http://${process.env.HOST}:${process.env.PORT}`
+const serverUrl = `http://${process.env.HOST}${process.env.PORT! ==="80" ? "" : ":" + process.env.PORT}`
 
 const facebookLogin = new FacebookStrategy(
     {
