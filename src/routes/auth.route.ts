@@ -47,7 +47,7 @@ class AuthRoute implements Route {
             '/google/callback',
             passport.authenticate('google', {
                 failureRedirect: '/',
-                session: false,
+                failureFlash: true,
             }),
             this.authHandler.after3rdLogin
         )
