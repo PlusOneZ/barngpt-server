@@ -123,7 +123,7 @@ const googleLogin = new GoogleStrategy(
         clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         callbackURL: `${serverUrl}${process.env.GOOGLE_CALLBACK_URL!}`,
         // passReqToCallback: true,
-        proxy: true,
+        // proxy: true,
     },
     async (accessToken: string, refreshToken: string, profile: any, done: any) => {
         console.log(profile);
