@@ -41,6 +41,7 @@ class AuthRoute implements Route {
             '/google',
             passport.authenticate('google', {
                 scope: ['profile', 'email'],
+                session: false,
             })
         )
         routes.get(
