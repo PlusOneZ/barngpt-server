@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import errorMiddleware from "./middlewares/error.middleware";
 import bodyParser from "body-parser";
 import passportMiddleware from "./middlewares/passport.middleware";
+import { globalAgent } from 'https';
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
@@ -23,6 +24,7 @@ class App {
         this.initSwaggerDocs();
         this.initRoutes(routes);
         // this.initErrorHandling(); // TODO: check this
+        globalAgent.options.rejectUnauthorized = false;
     }
 
     public listen() {

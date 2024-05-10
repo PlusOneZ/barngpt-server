@@ -35,6 +35,7 @@ class AuthService {
 
     public after3rdLogin = (req: Request, res: Response) => {
         try {
+            console.log("After 3rd login")
             const token = generateJWT(req.user);
             res.header('Authentication', "Bearer " + token);
             // res.cookie('x-auth-cookie', token);
