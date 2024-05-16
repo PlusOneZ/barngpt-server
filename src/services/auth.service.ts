@@ -39,7 +39,11 @@ class AuthService {
             const token = generateJWT(req.user);
             res.header('Authentication', "Bearer " + token);
             // res.cookie('x-auth-cookie', token);
-            res.redirect('/'); // todo: verify this
+            // res.redirect('/'); // todo: verify this
+            res.send({
+                token,
+                "me": req.user
+            })
         } catch (err) {
             throw new HttpException(401, "Authentication Failed")
         }
