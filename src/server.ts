@@ -21,8 +21,8 @@ const app = new App([
 
 if (process.env.HTTPS_ENABLED === 'true') {
     const port = 443;
-    const cert_key = fs.readFileSync(process.env.HTTPS_KEY!);
-    const cert = fs.readFileSync(process.env.HTTPS_CERT!);
+    const cert_key = fs.readFileSync(process.env.SSL_KEY!);
+    const cert = fs.readFileSync(process.env.SSL_CERT!);
 
     const httpsServer = https.createServer({
         key: cert_key,
