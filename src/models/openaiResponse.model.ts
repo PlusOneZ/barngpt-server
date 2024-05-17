@@ -9,7 +9,7 @@ const openaiResponseSchema = new Schema({
         required: true,
         ref: 'Task'
     }
-});
+}, { timestamps: true });
 
 type OpenaiResponse = InferSchemaType<typeof openaiResponseSchema>;
 
