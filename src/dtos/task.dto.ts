@@ -10,7 +10,6 @@ export class CreateTaskDto {
 
     public static fromJson(json: any) {
         // read json content and convert to desired form
-        // TODO re-write with joi
         try {
             var _ = !("content" in json) || !("prompts" in json.content)
             if (_) throw new Error()
@@ -29,8 +28,7 @@ export class CreateTaskDto {
             }
         })
 
-        let tt = this.convertTaskType(json.taskType);
-        return new CreateTaskDto({ prompts: prompts }, tt)
+        return new CreateTaskDto({ prompts: prompts }, json.taskType)
     }
 
     /**
@@ -42,7 +40,7 @@ export class CreateTaskDto {
      * @param taskType
      * @private
      */
-    private static convertTaskType(taskType: string)
+    public static convertTaskType(taskType: string)
         : "dummy" | "chat" |
           "image-generation" | "image-recognition" |
           "audio-generation" | "audio-recognition"
