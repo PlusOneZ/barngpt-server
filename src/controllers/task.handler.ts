@@ -4,7 +4,7 @@ import {Task} from "../models/task.model";
 import TaskService from "../services/task.service";
 import ThirdPartyAgentService from "../services/thirdPartyAgent.service";
 import HttpException from "../exceptions/HttpException";
-import {taskSchema} from "../utils/validators";
+import {validateTask} from "../utils/validators";
 
 class TaskHandler {
     taskService = new TaskService();
@@ -31,12 +31,12 @@ class TaskHandler {
         try {
             let data = req.body;
             data.taskType = CreateTaskDto.convertTaskType(data.taskType);
-            const {error} = taskSchema.validate(data);
+            const {error} = validateTask(data);
             if (error) {
                 res.status(400).json({status: "Failed", message: error.message});
                 return;
             }
-            const taskData = CreateTaskDto.fromJson(req.body);
+            const taskData = CreateTaskDto.fromJson(data);
             const t: Task = await this.taskService.createTask(taskData);
             res.status(201).json( { data: TaskHandler.taskStringify(t), message: "Task created" });
             this.agentService.doTask(t).then(
