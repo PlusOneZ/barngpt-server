@@ -41,6 +41,11 @@ class TaskHandler {
         }
     }
 
+    public newTaskWithAuth = async (req: Request, res: Response, next: NextFunction) => {
+        console.log(req.user);
+        return this.newTask(req, res, next);
+    }
+
     public getSome = async (req: Request, res: Response, next: NextFunction) => {
         try {
             let tasks : any[] = await this.taskService.findSomeTasks(10);
