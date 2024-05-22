@@ -19,6 +19,9 @@ const app = new App([
     new AuthRoute()
 ])
 
+// Set up HTTPS server
+// Some auth provider requires the server to have a domain name,
+// and https for security reasons.
 if (process.env.HTTPS_ENABLED === 'true') {
     const port = 443;
     const cert_key = fs.readFileSync(process.env.SSL_KEY!);

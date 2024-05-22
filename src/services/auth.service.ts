@@ -92,10 +92,11 @@ class AuthService {
     }
 
     public requireAuth = (req: Request, res: Response, next: NextFunction) => {
-        // TODO: Fix this
+        // corresponding with the {jwtLogin} strategy
+        // The way to provide this auth is to have a
+        // Bearer token in the Authorization header
         passport.authenticate("jwt", (err: Error | null, user: any) => {
             console.log("Authenticating with jwt...")
-            // console.log(err, user)
             if (err) {
                 console.log(err)
                 return res.status(401).json({ status: 'error', code: 'unauthorized' })
