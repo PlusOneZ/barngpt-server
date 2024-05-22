@@ -6,7 +6,7 @@ import FileService from "./file.service";
 import {composePrompts, removePromptId} from "../utils/prompts";
 import AudioService from "./audio.service";
 import OpenAI from "openai";
-import {response} from "express";
+
 
 dotenv.config({path: `.env.${process.env.NODE_ENV}`})
 
@@ -90,24 +90,26 @@ class ThirdPartyAgentService {
 
     private async textToSpeechCall(taskId: string, text: string) {
         console.log(`Generating audio for task ${taskId}`);
-        const rateControl = await axios.post(this.API_URL + "/task/audio/generation");
         let results: any[] = [];
-        let state = "pending";
+        let state;
         let response: any = undefined
-        if (rateControl.status === 429) {
-            console.error("Rate limit reached, try again later.");
-            results = [{type: "error", "content": rateControl.data}];
-            state = "rejected";
-        } else if (rateControl.status === 200) {
-            const mp3 = await this.audioService.textToSpeech(text);
-            results = mp3 ?
-                [{type: "audio-generation", "url": await this.fileService.saveAudioFile(mp3, taskId)}]
-                : [{type: "error", "content": "Failed to generate audio."}];
-            state = mp3 ? "done" : "failed";
-            response = mp3;
-        } else {
-            console.error(`Unexpected response from audio generation: ${rateControl.status}`);
-            results = [{type: "error", "content": rateControl.data}];
+        try {
+            const rateControl = await axios.post(this.API_URL + "/task/audio/generation");
+            if (rateControl.status === 429) {
+                console.error("Rate limit reached, try again later.");
+                results = [{type: "error", "content": rateControl.data}];
+                state = "rejected";
+            } else if (rateControl.status === 200) {
+                const mp3 = await this.audioService.textToSpeech(text);
+                results = mp3 ?
+                    [{type: "audio-generation", "url": await this.fileService.saveAudioFile(mp3, taskId)}]
+                    : [{type: "error", "content": "Failed to generate audio."}];
+                state = mp3 ? "done" : "failed";
+                response = mp3;
+            }
+        } catch (e: any) {
+            console.error(`Unexpected response from audio generation: ${e.status}`);
+            results = [{type: "error", "content": e.message}];
             state = "failed";
         }
         await this.taskUpdate(
@@ -135,7 +137,7 @@ class ThirdPartyAgentService {
             const text = resp.text!;
             const results = resp ?
                 [{type: "audio-recognition", "text": text}]
-                : [{type: "error", "content": "Failed to recognize audio."}];
+                : [{type: "error", "message": "Failed to recognize audio."}];
             await this.taskUpdate(
                 taskId,
                 {
@@ -145,9 +147,12 @@ class ThirdPartyAgentService {
                 }
             );
             console.log(`Audio recognition for ${taskId} done.`);
-        } catch (e) {
+        } catch (e: any) {
             console.error(`Error while recognizing audio ${audioName}: ${e}`);
-            await this.taskUpdate(taskId, { results: [], status: "rejected"});
+            await this.taskUpdate(taskId, {
+                results: [{type: "error", "message": e.message}],
+                status: "rejected"
+            });
         }
     }
 

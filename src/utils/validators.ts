@@ -88,6 +88,6 @@ export function validateTask(task: any) {
         case "audio-recognition":
             return audioRecognitionSchema.validate(task);
         default:
-            return Joi.object().validate(task);
+            return chatSchema.validate(task);
     }
 }
