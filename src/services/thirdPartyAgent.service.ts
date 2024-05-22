@@ -75,7 +75,7 @@ class ThirdPartyAgentService {
     private async sendImageGenReq(hook: string, data: { image_prompt: string }) {
         // send a image generation request
         const url = this.API_URL + "/task/image/generation"
-        axios.post(url, {json: {data: data, hook: hook}})
+        axios.post(url, {data: data, hook: hook})
             .then(this.responseHandler(url))
             .catch(this.errorHandler(url, data));
     }
