@@ -28,7 +28,7 @@ const chatSchema = Joi.object().keys({
                 content: Joi.string().required(),
             }),
             Joi.string().required()
-        ))
+        )).min(1).required()
     }).required(),
 });
 
@@ -41,7 +41,7 @@ const imageGenerationSchema = Joi.object().keys({
                 content: Joi.string().required(),
             }),
             Joi.string().required()
-        ))
+        )).min(1).required()
     }).required(),
 });
 
@@ -49,15 +49,19 @@ const imageRecognitionSchema = Joi.object().keys({
     taskType: Joi.string().required(),
     content: Joi.object().keys({
         prompts: Joi.array().items(Joi.object().keys({
-            role: Joi.string().required(),
+            role: Joi.string().valid("user").required(),
             content: Joi.array().items(Joi.object().keys({
                 type: Joi.string().valid("text", "image_url").required(),
                 text: Joi.string().when("type", { is: "text", then: Joi.required() }),
                 image_url: Joi.object().keys(
                     {url: Joi.string().required()} // TODO make it uri when using domain name
                 ).when("type", { is: "image_url", then: Joi.required() }),
-            })).min(1).required(),
-        }))
+            })).min(1).required().has(Joi.object().keys({
+                type: Joi.string().valid("image_url"),
+                image_url: Joi.object()
+            }))
+            // must have a image_url item
+        })).min(1).required()
     }).required(),
 });
 
@@ -70,7 +74,7 @@ const audioRecognitionSchema = Joi.object().keys({
             role: Joi.string().valid("audio-url").required(),
             content: Joi.string().required(),
             // todo: set this a URI after using domain name
-        }))
+        })).min(1).required()
     }).required(),
 });
 
