@@ -46,7 +46,12 @@ class App {
     private initMiddlewares() {
         // TODO: add more
         if (this.env === "development") {
-            this.app.use(cors<Request>())
+            this.app.use(cors<Request>({
+                origin: "*",
+                methods: ["GET", "POST", "OPTIONS", "HEAD"],
+                allowedHeaders: ["Content-Type", "Authorization"],
+                optionsSuccessStatus: 200,
+            }))
         }
         // this.app.use(express.urlencoded({ extended: true }));
         // this.app.use(express.json());
