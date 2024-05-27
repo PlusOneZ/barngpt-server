@@ -1,4 +1,4 @@
-import express from "express";
+import express, {Request} from "express";
 import Route from "./interfaces/Route.interface";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
@@ -6,6 +6,8 @@ import errorMiddleware from "./middlewares/error.middleware";
 import bodyParser from "body-parser";
 import passportMiddleware from "./middlewares/passport.middleware";
 import { globalAgent } from 'https';
+
+import cors from "cors";
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
@@ -44,7 +46,7 @@ class App {
     private initMiddlewares() {
         // TODO: add more
         if (this.env === "development") {
-
+            this.app.use(cors<Request>())
         }
         // this.app.use(express.urlencoded({ extended: true }));
         // this.app.use(express.json());
