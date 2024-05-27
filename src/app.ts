@@ -50,7 +50,6 @@ class App {
                 origin: "*",
                 methods: ["GET", "POST", "OPTIONS", "HEAD"],
                 allowedHeaders: ["Content-Type", "Authorization"],
-                optionsSuccessStatus: 200,
             }))
         }
         // this.app.use(express.urlencoded({ extended: true }));
