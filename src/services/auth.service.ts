@@ -98,11 +98,11 @@ class AuthService {
         passport.authenticate("jwt", (err: Error | null, user: any) => {
             console.log("Authenticating with jwt...")
             if (err) {
-                console.log(err)
-                return res.status(401).json({ status: 'error', code: 'unauthorized' })
+                // console.log(err)
+                return res.status(401).json({ error: 'unauthorized', message: err.message })
             }
             if (!user) {
-                return res.status(401).json({ status: 'error', code: 'unauthorized' })
+                return res.status(401).json({ error: 'unauthorized', message: 'Need to set Authorization Header' })
             } else {
                 return next()
             }

@@ -5,7 +5,6 @@ import {OpenaiResponseModel} from "../models/openaiResponse.model";
 import FileService from "./file.service";
 import {composePrompts, removePromptId} from "../utils/prompts";
 import AudioService from "./audio.service";
-import OpenAI from "openai";
 
 
 dotenv.config({path: `.env.${process.env.NODE_ENV}`})
@@ -18,7 +17,6 @@ class ThirdPartyAgentService {
     private openaiResponse = OpenaiResponseModel;
     private fileService = new FileService();
     private audioService = new AudioService();
-    private openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY!});
 
     constructor() {
         if (!process.env.THIRD_PARTY_AGENT_API) {

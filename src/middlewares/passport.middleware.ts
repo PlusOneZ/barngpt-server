@@ -50,8 +50,12 @@ const jwtLogin = new JwtStrategy(
         secretOrKey: process.env.JWT_SECRET!
     },
     async (payload: any, done: any) => {
+        // check if expired
+        if (!payload.exp || Math.floor(Date.now() / 1000) > payload.exp) {
+            console.log(`Token expired ${Date.now()} > ${payload.exp}`)
+            return done(new Error("Dirty token or token expired"), false)
+        }
         UserModel.findOne({ "email": payload.email }).then(function ( user) {
-            console.error(`payload: ${payload}`)
             if (user) {
                 console.log(`user: ${user}`)
                 return done(null, user)

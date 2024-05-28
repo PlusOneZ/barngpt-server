@@ -50,7 +50,9 @@ class TaskHandler {
     }
 
     public newTaskWithAuth = async (req: Request, res: Response, next: NextFunction) => {
-        console.log(req.user);
+        if (!req.user) {
+
+        }
         return this.newTask(req, res, next);
     }
 

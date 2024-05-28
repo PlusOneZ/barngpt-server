@@ -6,12 +6,13 @@ const secretOrKey: Secret = process.env.JWT_SECRET!
 export default function generateJWT(user: any) {
     try {
         return jwt.sign({
-            expiresIn: '12h',
             id: user._id,
             provider: user.provider,
             email: user.email,
-        }, secretOrKey);
+        }, secretOrKey, {
+            expiresIn: '12h'
+        });
     } catch (e) {
-        throw new HttpException(401, "User Auth Failed")
+        throw new HttpException(401, "Can't generate JWT for user.")
     }
 }
