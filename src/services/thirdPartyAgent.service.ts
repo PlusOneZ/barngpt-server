@@ -184,7 +184,8 @@ class ThirdPartyAgentService {
                 this.fileService.saveImageFromUrl(r.content, `${taskId}.png`)
                 return {
                     type: r.type,
-                    url: this.fileService.imageUrl(`${taskId}.png`)
+                    url: this.fileService.imageUrl(`${taskId}.png`),
+                    tokens_used: r.tokens_used
                 }
             }
             return r
