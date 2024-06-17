@@ -100,7 +100,7 @@ class ThirdPartyAgentService {
             } else if (rateControl.status === 200) {
                 const mp3 = await this.audioService.textToSpeech(text);
                 results = mp3 ?
-                    [{type: "audio-generation", "url": await this.fileService.saveAudioFile(mp3, taskId)}]
+                    [{type: "audio-generation", "url": await this.fileService.saveAudioFile(mp3, taskId), "usage": 0.02}]
                     : [{type: "error", "content": "Failed to generate audio."}];
                 state = mp3 ? "done" : "failed";
                 response = mp3;
@@ -134,7 +134,7 @@ class ThirdPartyAgentService {
             const resp = await this.audioService.speechToText(audioName!);
             const text = resp.text!;
             const results = resp ?
-                [{type: "audio-recognition", "text": text}]
+                [{type: "audio-recognition", "text": text, usage: 0.02}]
                 : [{type: "error", "message": "Failed to recognize audio."}];
             await this.taskUpdate(
                 taskId,
