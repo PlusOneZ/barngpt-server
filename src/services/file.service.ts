@@ -48,6 +48,16 @@ class FileService {
         })
     }
 
+    public base64ImageToFile(base64: string, filename: string) {
+        const file_content = base64.replace(/^data:image\/png;base64,/, "");
+        const buffer = Buffer.from(file_content, 'base64');
+        fs.writeFileSync(
+            path.join(__dirname, '../../public/image', filename),
+            buffer
+        );
+        return this.imageUrl(filename);
+    }
+
     public audioPathFromTask(taskId: string) {
         return path.join(__dirname, '../../public/audio', taskId + '.mp3');
     }

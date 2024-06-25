@@ -1,16 +1,33 @@
 import { TaskModel, Task } from "../models/task.model";
 import HttpException from "../exceptions/HttpException";
 import {CreateTaskDto} from "../dtos/task.dto";
+import FileService from "./file.service";
 
 class TaskService {
     public tasks = TaskModel;
+    fileService = new FileService();
 
     public async createTask(taskData: CreateTaskDto) : Promise<Task> {
-        const t = this.tasks.create( taskData )
+        const t = await this.tasks.create( taskData )
         if (!t) {
             console.error(`Error while saving Task(with ${taskData.content})`)
             throw new HttpException(500, "Task Create Failed.")
         }
+        let changeFlag = false;
+        if (t.taskType === "image-recognition") {
+            t.content.prompts[0].content = t.content.prompts[0].content.map((c: any) => {
+                if (c.type === "image_url" && c.image_url.url.startsWith("data:image/")) {
+                    c.image_url.url =
+                        this.fileService.base64ImageToFile(
+                            c.image_url.url,
+                            t._id.toString() + ".png"
+                        );
+                    changeFlag = true;
+                }
+                return c;
+            })
+        }
+        if (changeFlag) { await this.tasks.updateOne({_id: t._id}, t).exec(); }
         return t;
     }
 

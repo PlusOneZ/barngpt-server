@@ -10,6 +10,7 @@ class TaskHandler {
     taskService = new TaskService();
     agentService = new ThirdPartyAgentService();
 
+
     /**
      * The UUID of mongodb instance is a Buffer, use this method to stringify the UUID field
      * @param t task instance
@@ -51,7 +52,7 @@ class TaskHandler {
 
     public newTaskWithAuth = async (req: Request, res: Response, next: NextFunction) => {
         if (!req.user) {
-
+            next();
         }
         return this.newTask(req, res, next);
     }

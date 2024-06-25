@@ -54,10 +54,10 @@ class App {
         }
         // this.app.use(express.urlencoded({ extended: true }));
         // this.app.use(express.json());
-        this.app.use(bodyParser.json({limit: '5mb'}));
+        this.app.use(bodyParser.json({limit: '10mb'}));
         this.app.use(bodyParser.urlencoded({
             extended: true,
-            limit: '5mb',
+            limit: '10mb',
             parameterLimit: 50000,
         }));
         this.app.use(passportMiddleware.initialize())
