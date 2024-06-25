@@ -5,6 +5,7 @@ import {OpenaiResponseModel} from "../models/openaiResponse.model";
 import FileService from "./file.service";
 import {composePrompts, removePromptId} from "../utils/prompts";
 import AudioService from "./audio.service";
+import { getWhisperPrice, getTTSPrice } from "../utils/constants";
 
 
 dotenv.config({path: `.env.${process.env.NODE_ENV}`})
@@ -100,7 +101,9 @@ class ThirdPartyAgentService {
             } else if (rateControl.status === 200) {
                 const mp3 = await this.audioService.textToSpeech(text);
                 results = mp3 ?
-                    [{type: "audio-generation", "url": await this.fileService.saveAudioFile(mp3, taskId), "usage": 0.02}]
+                    [{type: "audio-generation",
+                      "url": await this.fileService.saveAudioFile(mp3, taskId),
+                      "usage": getTTSPrice(text.split(/[^a-zA-Z0-9]+/).length)}]
                     : [{type: "error", "content": "Failed to generate audio."}];
                 state = mp3 ? "done" : "failed";
                 response = mp3;
@@ -134,7 +137,9 @@ class ThirdPartyAgentService {
             const resp = await this.audioService.speechToText(audioName!);
             const text = resp.text!;
             const results = resp ?
-                [{type: "audio-recognition", "text": text, usage: 0.02}]
+                [{type: "audio-recognition",
+                    "text": text,
+                    usage: getWhisperPrice(await this.fileService.getAudioDuration(audioName!))}]
                 : [{type: "error", "message": "Failed to recognize audio."}];
             await this.taskUpdate(
                 taskId,

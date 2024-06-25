@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import axios from "axios";
+import { getAudioDurationInSeconds } from 'get-audio-duration'
 
 class FileService {
     private readonly HOST: string;
@@ -69,6 +70,16 @@ class FileService {
             buffer
         )
         return this.audioUrl(taskId + '.mp3');
+    }
+
+    public async getAudioDuration(audioName: string) {
+        try {
+            const audioPath = path.join(__dirname, '../../public/audio', audioName)
+            return await getAudioDurationInSeconds(audioPath);
+        } catch (e) {
+            console.error(`Error while getting audio duration: ${e}`);
+            return -0.1;
+        }
     }
 }
 
