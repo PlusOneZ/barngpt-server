@@ -8,13 +8,13 @@ const USD_TO_CNY_CURRENCY = 10.
 
 function getWhisperPrice(seconds: number) {
     return WHISPER_PRICE *
-        Math.ceil(seconds / SECOND_TO_MINUTE) *
+        (seconds + 1) / SECOND_TO_MINUTE *
         USD_TO_CNY_CURRENCY
 }
 
 function getTTSPrice(words: number) {
     return TTS_PRICE *
-        Math.ceil(words / ONE_MILLION) *
+        (words + 1) / ONE_MILLION *
         USD_TO_CNY_CURRENCY
 }
 
