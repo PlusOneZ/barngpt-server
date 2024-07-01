@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import axios from "axios";
 import { getAudioDurationInSeconds } from 'get-audio-duration'
+import  {getImageMimeType, imageSuffix} from "../utils/base64";
 
 class FileService {
     // private readonly HOST: string;
@@ -52,8 +53,23 @@ class FileService {
     }
 
     public base64ImageToFile(base64: string, filename: string) {
-        const file_content = base64.replace(/^data:image\/png;base64,/, "");
-        const buffer = Buffer.from(file_content, 'base64');
+        // split from comma to get last part as file content
+        const mimeType = getImageMimeType(base64);
+        if (!mimeType) {
+            return false
+        }
+        const suffix = imageSuffix(mimeType);
+        if (!suffix) {
+            return false
+        }
+        filename = filename + "." + suffix;
+        const parts = base64.split(',');
+        let fileContent = parts[parts.length - 1];
+        fileContent = fileContent.replace(
+            /dataimage\/((jpeg)|(png)|(jpg)|(gif)|(webp)|(svg))base64/,
+            ''
+        )
+        const buffer = Buffer.from(fileContent, 'base64');
         fs.writeFileSync(
             path.join(__dirname, '../../public/image', filename),
             buffer

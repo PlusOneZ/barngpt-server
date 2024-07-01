@@ -20,8 +20,16 @@ class TaskService {
                     c.image_url.url =
                         this.fileService.base64ImageToFile(
                             c.image_url.url,
-                            t._id.toString() + ".png"
+                            t._id.toString()
                         );
+                    if (!c.image_url.url) {
+                        this.tasks.deleteOne({_id: t._id}).exec();
+                        throw new HttpException(
+                            400,
+                            "Invalid base64 image MIME type should be one of " +
+                            "png|jpeg|jpg|gif|webp|svg. Starting with data:image/"
+                        )
+                    }
                     changeFlag = true;
                 }
                 return c;
