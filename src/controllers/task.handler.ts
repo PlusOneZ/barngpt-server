@@ -24,7 +24,8 @@ class TaskHandler {
             createdAt: t.createdAt,
             updatedAt: t.updatedAt,
             results: t.results,
-            taskType: t.taskType
+            taskType: t.taskType,
+            model: t.model
         }
     }
 
@@ -44,6 +45,7 @@ class TaskHandler {
                 () => console.log("Hook sent")
             ).catch(
                 (e) => console.error(`Error while sending hook: ${e}`)
+                // announce failure to task results.
             );
         } catch (e) {
             next(e)

@@ -43,51 +43,52 @@ class ThirdPartyAgentService {
     }
 
     public async doTask(taskData: Task) {
-        const taskId = taskData._id.toString()
+        const taskId = taskData._id.toString();
+        const taskModel = taskData.model;
         const hook = this.createHook(taskId);
         const prompts = removePromptId(taskData.content.prompts);
         switch (taskData.taskType) {
             case "chat":
-                return this.sendChatReq(hook, prompts);
+                return this.sendChatReq(hook, prompts, taskModel);
             case "image-generation":
                 return this.sendImageGenReq(hook, {
                     image_prompt: composePrompts(prompts)
-                });
+                }, taskModel);
             case "image-recognition":
-                return this.sendVisionReq(hook, prompts);
+                return this.sendVisionReq(hook, prompts, taskModel);
             case "audio-generation":
-                return this.textToSpeechCall(taskId, composePrompts(prompts))
+                return this.textToSpeechCall(taskId, composePrompts(prompts), taskModel)
             case "audio-recognition":
-                return this.speechToTextCall(taskId, prompts[0].content)
+                return this.speechToTextCall(taskId, prompts[0].content, taskModel)
             default:
                 return this.sendDummyReq(hook);
         }
     }
 
-    private async sendChatReq(hook: string, prompts: any) {
+    private async sendChatReq(hook: string, prompts: any, model: string) {
         const url = this.API_URL + "/task/chat"
-        axios.post(url, {data: prompts, hook: hook})
+        axios.post(url, {data: prompts, hook: hook, model: model})
             .then(this.responseHandler(url))
             .catch(this.errorHandler(url, prompts));
     }
 
-    private async sendImageGenReq(hook: string, data: { image_prompt: string }) {
+    private async sendImageGenReq(hook: string, data: { image_prompt: string }, model: string) {
         // send a image generation request
         const url = this.API_URL + "/task/image/generation"
-        axios.post(url, {data: data, hook: hook})
+        axios.post(url, {data: data, hook: hook, model: model})
             .then(this.responseHandler(url))
             .catch(this.errorHandler(url, data));
     }
 
-    private async sendVisionReq(hook: string, prompts: any) {
+    private async sendVisionReq(hook: string, prompts: any, model: string) {
         const url = this.API_URL + "/task/vision"
         console.log(prompts)
-        axios.post(url, {data: prompts, hook: hook})
+        axios.post(url, {data: prompts, hook: hook, model: model})
             .then(this.responseHandler(url))
             .catch(this.errorHandler(url, prompts));
     }
 
-    private async textToSpeechCall(taskId: string, text: string) {
+    private async textToSpeechCall(taskId: string, text: string, model : string) {
         console.log(`Generating audio for task ${taskId}`);
         let results: any[] = [];
         let state;
@@ -99,7 +100,7 @@ class ThirdPartyAgentService {
                 results = [{type: "error", "content": rateControl.data}];
                 state = "rejected";
             } else if (rateControl.status === 200) {
-                const mp3 = await this.audioService.textToSpeech(text);
+                const mp3 = await this.audioService.textToSpeech(text, model);
                 results = mp3 ?
                     [{type: "audio-generation",
                       "url": await this.fileService.saveAudioFile(mp3, taskId),
@@ -124,7 +125,7 @@ class ThirdPartyAgentService {
         console.log(`Audio generation for ${taskId} done.`);
     }
 
-    private async speechToTextCall(taskId: string, audioPath: string) {
+    private async speechToTextCall(taskId: string, audioPath: string, model : string) {
         console.log(`Recognizing audio for task ${taskId}`)
         const rateControl = await axios.post(this.API_URL + "/task/audio/recognition");
         if (rateControl.status !== 200) {
@@ -134,7 +135,7 @@ class ThirdPartyAgentService {
         }
         const audioName = audioPath.split('/').pop();
         try {
-            const resp = await this.audioService.speechToText(audioName!);
+            const resp = await this.audioService.speechToText(audioName!, model);
             const text = resp.text!;
             const results = resp ?
                 [{type: "audio-recognition",

@@ -1,5 +1,4 @@
-import { Schema, InferSchemaType, model, Model } from "mongoose";
-import { randomUUID } from "crypto"
+import { Schema, model, Model } from "mongoose";
 import bcrypt from 'bcryptjs'
 import Joi from 'joi'
 
@@ -72,7 +71,6 @@ userSchema.methods.toJSON = function () {
         provider: this.provider,
         email: this.email,
         username: this.username,
-        avatar: this.avatar,
         name: this.name,
         role: this.role,
         createdAt: this.createdAt,

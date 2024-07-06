@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import exp from "constants";
 
 export const loginSchema = Joi.object().keys({
     email: Joi.string().trim().email().required(),
@@ -30,20 +29,27 @@ const chatSchema = Joi.object().keys({
             Joi.string().required()
         )).min(1).required()
     }).required(),
+    model: Joi.string().valid("defer", "gpt-3.5-turbo", "gpt-4o", "gpt-4", "gpt-4-turbo")
 });
 
-const imageGenerationSchema = Joi.object().keys({
-    taskType: Joi.string().required(),
-    content: Joi.object().keys({
-        prompts: Joi.array().items(Joi.alternatives().try(
-            Joi.object().keys({
-                role: Joi.string().valid("user").required(),
-                content: Joi.string().required(),
-            }),
-            Joi.string().required()
-        )).min(1).required()
-    }).required(),
-});
+const getSchema = (...models: string[])=> {
+    return Joi.object().keys({
+        taskType: Joi.string().required(),
+        content: Joi.object().keys({
+            prompts: Joi.array().items(Joi.alternatives().try(
+                Joi.object().keys({
+                    role: Joi.string().valid("user").required(),
+                    content: Joi.string().required(),
+                }),
+                Joi.string().required()
+            )).min(1).required()
+        }).required(),
+        model: Joi.string().valid("defer", ...models)
+    });
+}
+
+const imageGenerationSchema = getSchema("dall-e-2", "dall-e-3")
+const audioGenerationSchema = getSchema( "tts-1", "tts-1-hd")
 
 const imageRecognitionSchema = Joi.object().keys({
     taskType: Joi.string().required(),
@@ -65,8 +71,6 @@ const imageRecognitionSchema = Joi.object().keys({
     }).required(),
 });
 
-const audioGenerationSchema = imageGenerationSchema;
-
 const audioRecognitionSchema = Joi.object().keys({
     taskType: Joi.string().required(),
     content: Joi.object().keys({
@@ -76,6 +80,7 @@ const audioRecognitionSchema = Joi.object().keys({
             // todo: set this a URI after using domain name
         })).min(1).required()
     }).required(),
+    model: Joi.string().valid("defer", "whisper-1")
 });
 
 

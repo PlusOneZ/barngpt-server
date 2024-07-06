@@ -8,15 +8,15 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 class AudioService {
     private openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
-    public textToSpeech(text: string) {
+    public textToSpeech(text: string, model: string) {
         return this.openai.audio.speech.create({
-            model: "tts-1",
+            model: model,
             voice: "alloy",
             input: text
         })
     }
 
-    public speechToText(audioFilename: string) {
+    public speechToText(audioFilename: string, model: string) {
         // check if audio file exists
         const apath = path.join(__dirname, '../../public/audio', audioFilename)
         if (!fs.existsSync(apath)) {
@@ -24,7 +24,7 @@ class AudioService {
         }
         return this.openai.audio.transcriptions.create({
             file: fs.createReadStream(apath),
-            model: "whisper-1"
+            model: model
         })
     }
 }

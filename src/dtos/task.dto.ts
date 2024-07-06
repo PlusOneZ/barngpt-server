@@ -2,10 +2,31 @@ import { Prompt } from "../models/task.model";
 import HttpException from "../exceptions/HttpException";
 
 export class CreateTaskDto {
-    constructor(content_: { prompts: [Prompt] }, type_: string = "dummy", status_: string = "pending") {
+    constructor(content_: { prompts: [Prompt] }, type_: string = "dummy", model_: string = "defer", status_: string = "pending") {
         this.content = content_
         this.taskType = type_
+        this.model = model_
         this.status = status_
+        this.deferModel()
+    }
+
+    public content : { prompts: [Prompt] };
+    public taskType : string;
+    public status : string = "pending";
+    public model : string;
+
+    public static defaultModelMap: any = {
+        "chat": "gpt-3.5-turbo",
+        "image-generation": "dall-e-2",
+        "image-recognition": "gpt-4o",
+        "audio-generation": "tts-1",
+        "audio-recognition": "whisper-1"
+    }
+
+    private deferModel() {
+        if (this.model === "defer") {
+            this.model = CreateTaskDto.defaultModelMap[this.taskType]
+        }
     }
 
     public static fromJson(json: any) {
@@ -28,7 +49,7 @@ export class CreateTaskDto {
             }
         })
 
-        return new CreateTaskDto({ prompts: prompts }, json.taskType)
+        return new CreateTaskDto({ prompts: prompts }, json.taskType, json.model)
     }
 
     /**
@@ -75,8 +96,4 @@ export class CreateTaskDto {
                 return "dummy";
         }
     }
-
-    public content : { prompts: [Prompt] };
-    public taskType : string;
-    public status : string = "pending";
 }

@@ -25,22 +25,26 @@ const taskSchema = new Schema({
             "audio-generation", "audio-recognition"
         ]
     },
+    model: {
+        type: String,
+        default: "defer",
+        enum: [
+            "defer",
+            "gpt-3.5-turbo", "gpt-4o",
+            "gpt-4", "gpt-4-turbo",
+            "dall-e-2", "dall-e-3",
+            "whisper-1", "tts-1", "tts-1-hd"
+        ]
+    },
     status: {
         type: String,
         required: true,
         default: "pending",
         enum: ["pending", "done", "failed", "rejected"]
     },
-    // ownerId: { type: Schema.Types.UUID, ref: 'User' }, // user's ID
-    results: [Schema.Types.Mixed]
+    results: [Schema.Types.Mixed],
+    ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true })
-
-promptSchema.set("toJSON", {
-    virtuals: true,
-    transform: (doc, ret, options) => {
-        delete ret._id;
-    },
-})
 
 type Task = InferSchemaType<typeof taskSchema>;
 type Prompt = InferSchemaType<typeof promptSchema>;
