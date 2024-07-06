@@ -16,9 +16,7 @@ function getWhisperPrice(seconds: number) {
 }
 
 function getTTSPrice(words: number, model: string) {
-    return TTS_PRICE[model] *
-        (words + 1) / ONE_MILLION *
-        USD_TO_CNY_CURRENCY
+    return TTS_PRICE[model] * (words + 1) * USD_TO_CNY_CURRENCY
 }
 
 export {
