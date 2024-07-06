@@ -88,7 +88,7 @@ class ThirdPartyAgentService {
             .catch(this.errorHandler(url, prompts));
     }
 
-    private async textToSpeechCall(taskId: string, text: string, model : string) {
+    private async textToSpeechCall(taskId: string, text: string, model: string) {
         console.log(`Generating audio for task ${taskId}`);
         let results: any[] = [];
         let state;
@@ -104,7 +104,7 @@ class ThirdPartyAgentService {
                 results = mp3 ?
                     [{type: "audio-generation",
                       "url": await this.fileService.saveAudioFile(mp3, taskId),
-                      "usage": getTTSPrice(text.split(/[^a-zA-Z0-9]+/).length)}]
+                      "usage": getTTSPrice(text.split(/[^a-zA-Z0-9]+/).length, model)}]
                     : [{type: "error", "content": "Failed to generate audio."}];
                 state = mp3 ? "done" : "failed";
                 response = mp3;

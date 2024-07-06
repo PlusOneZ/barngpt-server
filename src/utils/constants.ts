@@ -1,8 +1,11 @@
+const ONE_MILLION = 1000000
 
 const WHISPER_PRICE = 0.006
-const TTS_PRICE = 15
+const TTS_PRICE: any = {
+    "tts-1": 15 / ONE_MILLION,
+    "tts-1-hd": 30 / ONE_MILLION
+}
 
-const ONE_MILLION = 1000000
 const SECOND_TO_MINUTE = 60
 const USD_TO_CNY_CURRENCY = 10.
 
@@ -12,8 +15,8 @@ function getWhisperPrice(seconds: number) {
         USD_TO_CNY_CURRENCY
 }
 
-function getTTSPrice(words: number) {
-    return TTS_PRICE *
+function getTTSPrice(words: number, model: string) {
+    return TTS_PRICE[model] *
         (words + 1) / ONE_MILLION *
         USD_TO_CNY_CURRENCY
 }
