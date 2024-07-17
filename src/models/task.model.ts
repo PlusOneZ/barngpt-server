@@ -27,9 +27,9 @@ const taskSchema = new Schema({
     },
     model: {
         type: String,
-        default: "defer",
+        default: "default",
         enum: [
-            "defer",
+            "default",
             "gpt-3.5-turbo", "gpt-4o",
             "gpt-4", "gpt-4-turbo",
             "dall-e-2", "dall-e-3",

@@ -2,7 +2,7 @@ import { Prompt } from "../models/task.model";
 import HttpException from "../exceptions/HttpException";
 
 export class CreateTaskDto {
-    constructor(content_: { prompts: [Prompt] }, type_: string = "dummy", model_: string = "defer", status_: string = "pending") {
+    constructor(content_: { prompts: [Prompt] }, type_: string = "dummy", model_: string = "default", status_: string = "pending") {
         this.content = content_
         this.taskType = type_
         this.model = model_
@@ -24,7 +24,7 @@ export class CreateTaskDto {
     }
 
     private deferModel() {
-        if (this.model === "defer") {
+        if (this.model === "default") {
             this.model = CreateTaskDto.defaultModelMap[this.taskType]
         }
     }

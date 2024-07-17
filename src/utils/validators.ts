@@ -29,7 +29,7 @@ const chatSchema = Joi.object().keys({
             Joi.string().required()
         )).min(1).required()
     }).required(),
-    model: Joi.string().valid("defer", "gpt-3.5-turbo", "gpt-4o", "gpt-4", "gpt-4-turbo")
+    model: Joi.string().valid("default", "gpt-3.5-turbo", "gpt-4o", "gpt-4", "gpt-4-turbo")
 });
 
 const getSchema = (...models: string[])=> {
@@ -44,7 +44,7 @@ const getSchema = (...models: string[])=> {
                 Joi.string().required()
             )).min(1).required()
         }).required(),
-        model: Joi.string().valid("defer", ...models)
+        model: Joi.string().valid("default", ...models)
     });
 }
 
@@ -69,6 +69,7 @@ const imageRecognitionSchema = Joi.object().keys({
             // must have a image_url item
         })).min(1).required()
     }).required(),
+    model: Joi.string().valid("default", "gpt-4o", "gpt-4-turbo")
 });
 
 const audioRecognitionSchema = Joi.object().keys({
@@ -80,7 +81,7 @@ const audioRecognitionSchema = Joi.object().keys({
             // todo: set this a URI after using domain name
         })).min(1).required()
     }).required(),
-    model: Joi.string().valid("defer", "whisper-1")
+    model: Joi.string().valid("default", "whisper-1")
 });
 
 
