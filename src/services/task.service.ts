@@ -41,7 +41,11 @@ class TaskService {
 
     public async findSomeTasks(count: number) {
         if (count <= 0) return [];
-        return await this.tasks.find({}, null, {limit: count}).exec();
+        return await this.tasks.find(
+            {},
+            null,
+            {limit: count}
+        ).sort({ updatedAt: "desc" }).exec();
     }
 
     public async getNewestOne() {

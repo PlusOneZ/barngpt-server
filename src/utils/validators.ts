@@ -5,6 +5,11 @@ export const loginSchema = Joi.object().keys({
     password: Joi.string().trim().min(6).max(20).required(),
 });
 
+export const businessLoginSchema = Joi.object().keys({
+    identifier: Joi.string().trim().required(),
+    password: Joi.string().trim().min(6).max(20).required(),
+});
+
 export const registerSchema = Joi.object().keys({
     name: Joi.string().trim().min(2).max(30).required(),
     username: Joi.string()
@@ -17,6 +22,11 @@ export const registerSchema = Joi.object().keys({
     password: Joi.string().trim().min(6).max(20).required(),
 });
 
+export const businessRegisterSchema = Joi.object().keys({
+    identifier: Joi.string().trim().min(2).max(30).required(),
+    description: Joi.string().required(),
+    password: Joi.string().trim().min(6).max(20).required(),
+});
 
 const chatSchema = Joi.object().keys({
     taskType: Joi.string().required(),

@@ -5,7 +5,8 @@ import { Strategy as FacebookStrategy } from "passport-facebook";
 import { Strategy as GoogleStrategy } from "passport-google-oauth2";
 
 import { UserModel } from "../models/user";
-import { loginSchema } from "../utils/validators";
+import { BUserModel } from "../models/businessUser.model";
+import { loginSchema, businessLoginSchema } from "../utils/validators";
 import dotenv from "dotenv";
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}`});
@@ -44,6 +45,44 @@ const localLogin = new PassportLocalStrategy(
     }
 )
 
+const businessLocalLogin = new PassportLocalStrategy(
+    {
+        usernameField: 'identifier',
+        passwordField: 'password',
+        session: false,
+        passReqToCallback: true
+    },
+    async (req, identifier, password, done) => {
+        const { error } = businessLoginSchema.validate(req.body);
+        if (error) {
+            return done(null, false, { message: error.details[0].message });
+        }
+
+        try {
+            const bUser = await BUserModel.findOne({ identifier: identifier.trim() });
+            if (!bUser) {
+                return done(null, false, { message: "Identifier does not exists"});
+            }
+
+            if (bUser.identifier === "admin" && bUser.password === password) {
+                return done(null, bUser)
+            }
+
+            bUser.comparePassword(password, function (err: Error | null, isMatch: boolean) {
+                if (err) {
+                    return done(err);
+                }
+                if (!isMatch) {
+                    return done(null, false, { message: "Incorrect password" })
+                }
+                return done(null, bUser)
+            })
+        } catch (err) {
+            return done(err)
+        }
+    }
+)
+
 const jwtLogin = new JwtStrategy(
     {
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -57,7 +96,35 @@ const jwtLogin = new JwtStrategy(
         }
         UserModel.findOne({ "email": payload.email }).then(function ( user) {
             if (user) {
-                console.log(`user: ${user}`)
+                // console.log(`user: ${user}`)
+                return done(null, user)
+            } else {
+                return done(null, false)
+            }
+        }).catch(function (err) {
+            return done(err, false)
+        });
+
+    },
+);
+
+const jwtBusinessLogin = new JwtStrategy(
+    {
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+        secretOrKey: process.env.JWT_SECRET!,
+        passReqToCallback: true,
+    },
+    async (req: any, payload: any, done: any) => {
+        // check if expired
+        // TODO: buser might need longer expiration limit
+        if (!payload.exp || Math.floor(Date.now() / 1000) > payload.exp) {
+            console.log(`Token expired ${Date.now()} > ${payload.exp}`)
+            return done(new Error("Dirty token or token expired"), false)
+        }
+        BUserModel.findOne({ "identifier": payload.identifier }).then(function ( user) {
+            if (user) {
+                // console.log(`user: ${user}`)
+                req.user = payload
                 return done(null, user)
             } else {
                 return done(null, false)
@@ -161,5 +228,8 @@ passport.use(localLogin)
 passport.use(jwtLogin)
 passport.use(facebookLogin)
 passport.use(googleLogin)
+
+passport.use("business-local", businessLocalLogin)
+passport.use("business-jwt", jwtBusinessLogin)
 
 export default passport

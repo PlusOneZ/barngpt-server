@@ -18,7 +18,8 @@ class AuthRoute implements Route {
         routes.post(
             '/login',
             this.authHandler.requireLocalAuth,
-            this.authHandler.afterLocalLogin);
+            this.authHandler.afterLocalLogin
+        );
         routes.post(
             '/register',
             this.authHandler.localRegister
@@ -28,11 +29,34 @@ class AuthRoute implements Route {
             this.authHandler.logout
         )
 
+        // Business Local
+        routes.post(
+            '/business/user/add',
+            this.authHandler.requireBusinessJwtAuth,
+            this.authHandler.requireBusinessAdmin,
+            this.authHandler.addBusinessUser
+        )
+        routes.post(
+            '/business/login',
+            this.authHandler.requireBusinessAuth,
+            this.authHandler.afterBusinessLogin
+        );
+
         routes.get(
             '/test/jwt',
             this.authHandler.requireAuth,
             (req: any, res: any) => {
                 res.send({ message: 'You are authenticated' })
+            }
+        )
+
+        routes.get(
+            "/business/test/admin",
+            this.authHandler.requireBusinessJwtAuth,
+            this.authHandler.requireBusinessAdmin,
+            (req: any, res: any) => {
+                console.log(req.user)
+                res.send({message: 'You are an admin'})
             }
         )
 
