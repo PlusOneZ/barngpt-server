@@ -1,15 +1,18 @@
 import { Request, Response, NextFunction } from "express";
-import {CreateTaskDto} from "../dtos/task.dto";
-import {Task} from "../models/task.model";
+import { CreateTaskDto } from "../dtos/task.dto";
+import { Task } from "../models/task.model";
 import TaskService from "../services/task.service";
 import ThirdPartyAgentService from "../services/thirdPartyAgent.service";
+import BusinessUserService from "../services/businessUser.service";
 import HttpException from "../exceptions/HttpException";
-import {validateTask} from "../utils/validators";
+import {businessJwtPayloadSchema, validateTask} from "../utils/validators";
+import businessUserService from "../services/businessUser.service";
+import {MINIMUM_TASKABLE_CREDITS} from "../utils/constants";
 
 class TaskHandler {
     taskService = new TaskService();
     agentService = new ThirdPartyAgentService();
-
+    businessUserService = new BusinessUserService();
 
     /**
      * The UUID of mongodb instance is a Buffer, use this method to stringify the UUID field
@@ -25,7 +28,8 @@ class TaskHandler {
             updatedAt: t.updatedAt,
             results: t.results,
             taskType: t.taskType,
-            model: t.model
+            model: t.model,
+            owner: t.ownerId.identifier
         }
     }
 
@@ -35,10 +39,13 @@ class TaskHandler {
             data.taskType = CreateTaskDto.convertTaskType(data.taskType);
             const {error} = validateTask(data);
             if (error) {
-                res.status(400).json({status: "Failed", message: error.message});
+                res.status(442).json({status: "Failed", message: error.message});
                 return;
             }
             const taskData = CreateTaskDto.fromJson(data);
+            if (req.user) {
+                taskData.setOwner((req.user as any).id);
+            }
             const t: Task = await this.taskService.createTask(taskData);
             res.status(201).json( { data: TaskHandler.taskStringify(t), message: "Task created" });
             this.agentService.doTask(t).then(
@@ -54,7 +61,21 @@ class TaskHandler {
 
     public newTaskWithAuth = async (req: Request, res: Response, next: NextFunction) => {
         if (!req.user) {
-            next();
+            res.status(401).json({error: "No Auth", message: "Set a valid Authentication Header with Bearer token"})
+            return
+        } else if (businessJwtPayloadSchema.validate(req.user).error) {
+            res.status(401).json({error: "Invalid Auth", message: "Dirty token, try login bUser again."})
+            return
+        }
+        // console.log(req.user)
+        const bUserDoc = await this.businessUserService.getBusinessUserByObjId((req.user as any).id);
+        if (!bUserDoc) {
+            res.status(401).json({error: "Invalid Auth", message: "User not found in database."})
+            return
+        }
+        if (bUserDoc.credits < MINIMUM_TASKABLE_CREDITS) {
+            res.status(403).json({error: "Insufficient Credits", message: "Top up your credits to create a task."})
+            return
         }
         return this.newTask(req, res, next);
     }

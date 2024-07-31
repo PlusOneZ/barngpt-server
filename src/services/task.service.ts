@@ -36,7 +36,8 @@ class TaskService {
             })
         }
         if (changeFlag) { await this.tasks.updateOne({_id: t._id}, t).exec(); }
-        return t;
+        const ret = await this.tasks.findOne({_id: t._id}).populate("ownerId").exec();
+        return ret!;
     }
 
     public async findSomeTasks(count: number) {

@@ -43,7 +43,7 @@ const taskSchema = new Schema({
         enum: ["pending", "done", "failed", "rejected"]
     },
     results: [Schema.Types.Mixed],
-    ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
+    ownerId: { type: Schema.Types.ObjectId, ref: 'BusinessUser' },
 }, { timestamps: true })
 
 type Task = InferSchemaType<typeof taskSchema>;

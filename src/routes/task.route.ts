@@ -17,7 +17,7 @@ class TaskRoute implements Route {
         this.router.post(`${this.path}`, this.taskHandler.newTask);
         this.router.post(
             `${this.path}/withAuth`,
-            this.authHandler.requireAuth,
+            this.authHandler.requireBusinessJwtAuth,
             this.taskHandler.newTaskWithAuth
         )
         this.router.get(`${this.path}/some`, this.taskHandler.getSome);

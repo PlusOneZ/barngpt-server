@@ -3,6 +3,7 @@ import IndexRoute from "./routes/index.route";
 import TaskRoute from "./routes/task.route";
 import FileRoute from "./routes/file.route";
 import AuthRoute from "./routes/auth.route";
+import BusinessUserRoute from "./routes/user.route";
 
 import * as https from "https";
 import * as http from "http";
@@ -16,7 +17,8 @@ const app = new App([
     new IndexRoute(),
     new TaskRoute(),
     new FileRoute(),
-    new AuthRoute()
+    new AuthRoute(),
+    new BusinessUserRoute()
 ])
 
 // Set up HTTPS server

@@ -1,4 +1,5 @@
 import { Prompt } from "../models/task.model";
+import { ObjectId } from "bson";
 import HttpException from "../exceptions/HttpException";
 
 export class CreateTaskDto {
@@ -14,6 +15,11 @@ export class CreateTaskDto {
     public taskType : string;
     public status : string = "pending";
     public model : string;
+    public ownerId : ObjectId | undefined;
+
+    public setOwner(_id: string) {
+        this.ownerId = new ObjectId(_id)
+    }
 
     public static defaultModelMap: any = {
         "chat": "gpt-3.5-turbo",

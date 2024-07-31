@@ -28,6 +28,15 @@ export const businessRegisterSchema = Joi.object().keys({
     password: Joi.string().trim().min(6).max(20).required(),
 });
 
+export const businessJwtPayloadSchema = Joi.object().keys({
+    id: Joi.string().required(),
+    identifier: Joi.string().required(),
+    description: Joi.string().required(),
+    enableIpCheck: Joi.boolean().required(),
+    iat: Joi.number(),
+    exp: Joi.number(),
+})
+
 const chatSchema = Joi.object().keys({
     taskType: Joi.string().required(),
     content: Joi.object().keys({

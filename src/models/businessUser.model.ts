@@ -1,6 +1,20 @@
 import { Schema, model, Model } from "mongoose";
 import bcrypt from 'bcryptjs'
 
+interface ICreditHistory {
+    amount: number,
+    date: Date,
+    note: string,
+}
+
+const creditHistorySchema = new Schema({
+    amount: { type: Schema.Types.Number, required: true },
+    date: { type: Schema.Types.Date, required: true, default: Date.now },
+    note: { type: Schema.Types.String },
+})
+
+const CreditHistoryModel = model<ICreditHistory>("CreditHistory", creditHistorySchema)
+
 interface IBUser {
     identifier: string,
     description: string,
@@ -8,10 +22,11 @@ interface IBUser {
     credits: number,
     enableIpCheck: boolean,
     iPWhiteList: string[],
+    creditHistory: ICreditHistory[],
 }
 
 interface IBUserMethods {
-    addCredits(amount: number): void,
+    addCredits(amount: number, note: string): void,
     deductCredits(amount: number): void,
     comparePassword(pwd: string, callback: any): void,
     checkIp(ip: string): boolean,
@@ -51,8 +66,23 @@ const bUserSchema = new Schema<IBUser, BUserModel, IBUserMethods>({
     iPWhiteList: {
         type: [Schema.Types.String],
         default: [],
+    },
+    creditHistory: {
+        type: [creditHistorySchema],
+        default: [],
+        required: true,
     }
 })
+
+bUserSchema.methods.toJSON = function () {
+    return {
+        identifier: this.identifier,
+        description: this.description,
+        credits: this.credits,
+        enableIpCheck: this.enableIpCheck,
+        iPWhiteList: this.iPWhiteList
+    }
+}
 
 bUserSchema.method("createBUser", async function createBUser(user: any) {
     bcrypt.genSalt(10, (err, salt) => {
@@ -68,8 +98,9 @@ bUserSchema.method("createBUser", async function createBUser(user: any) {
     })
 })
 
-bUserSchema.method("addCredits", async function addCredits(amount: number) {
+bUserSchema.method("addCredits", async function addCredits(amount: number, note: string = "Added credits.") {
     this.$inc("credits", amount)
+    this.creditHistory.push(new CreditHistoryModel({ amount, note }))
     await this.save()
 })
 

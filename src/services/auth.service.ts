@@ -122,9 +122,8 @@ class AuthService {
         const { identifier, password, description } = req.body;
         try {
             const existingUser = await BUserModel.findOne({ identifier });
-
             if (existingUser) {
-                return res.status(422).send({ message: 'Email is in use' });
+                return res.status(422).send({ message: `Identifier [${identifier}] is in use` });
             }
 
             try {
@@ -135,6 +134,7 @@ class AuthService {
                 });
 
                 newUser.createBUser(newUser);
+                res.json({ message: 'Register success.' });
             } catch (err) {
                 return next(err);
             }
@@ -182,7 +182,7 @@ class AuthService {
     }
 
     public requireBusinessAdmin = (req: any, res: Response, next: NextFunction) => {
-        if (req.user) {
+        if (req.user && req.user.identifier === "admin") {
             console.log(req.user)
             console.log("Checking admin...")
             next()

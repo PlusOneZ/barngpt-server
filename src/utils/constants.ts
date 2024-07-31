@@ -9,6 +9,8 @@ const TTS_PRICE: any = {
 const SECOND_TO_MINUTE = 60
 const USD_TO_CNY_CURRENCY = 10.
 
+const MINIMUM_TASKABLE_CREDITS = 0.1
+
 function getWhisperPrice(seconds: number) {
     return WHISPER_PRICE *
         (seconds + 1) / SECOND_TO_MINUTE *
@@ -21,5 +23,6 @@ function getTTSPrice(words: number, model: string) {
 
 export {
     getWhisperPrice,
-    getTTSPrice
+    getTTSPrice,
+    MINIMUM_TASKABLE_CREDITS
 }

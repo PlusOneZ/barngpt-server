@@ -82,7 +82,7 @@ class ThirdPartyAgentService {
 
     private async sendVisionReq(hook: string, prompts: any, model: string) {
         const url = this.API_URL + "/task/vision"
-        console.log(prompts)
+        // console.log(prompts)
         axios.post(url, {data: prompts, hook: hook, model: model})
             .then(this.responseHandler(url))
             .catch(this.errorHandler(url, prompts));

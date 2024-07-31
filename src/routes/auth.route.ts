@@ -42,6 +42,13 @@ class AuthRoute implements Route {
             this.authHandler.afterBusinessLogin
         );
 
+        routes.put(
+            '/business/user/credits',
+            this.authHandler.requireBusinessJwtAuth,
+            this.authHandler.requireBusinessAdmin,
+        )
+
+        // test jwt
         routes.get(
             '/test/jwt',
             this.authHandler.requireAuth,
@@ -49,7 +56,6 @@ class AuthRoute implements Route {
                 res.send({ message: 'You are authenticated' })
             }
         )
-
         routes.get(
             "/business/test/admin",
             this.authHandler.requireBusinessJwtAuth,
