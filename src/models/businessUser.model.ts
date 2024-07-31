@@ -99,6 +99,7 @@ bUserSchema.method("createBUser", async function createBUser(user: any) {
 })
 
 bUserSchema.method("addCredits", async function addCredits(amount: number, note: string = "Added credits.") {
+    if (amount <= 0) return
     this.$inc("credits", amount)
     this.creditHistory.push(new CreditHistoryModel({ amount, note }))
     await this.save()

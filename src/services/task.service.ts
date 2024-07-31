@@ -50,7 +50,7 @@ class TaskService {
     }
 
     public async getNewestOne() {
-        return await this.tasks.findOne({}).sort({ createdAt: "desc" }).exec();
+        return await this.tasks.findOne({}).sort({ createdAt: "desc" }).populate("ownerId").exec();
     }
 
     public async getResults(taskId: string) {

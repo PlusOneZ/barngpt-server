@@ -119,8 +119,22 @@ class BusinessUserHandler {
         try {
             const ip = req.ip;
             res.status(200).json({
-                data: ip,
+                data: {ip, hip: req.headers['x-forwarded-for']},
                 message: `Current IP address. Validation: ${await this.businessUserService.checkIpValidity((req.user as any).id, ip!)}`});
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    public requireBusinessUserIpCheck = async (req: any, res: Response, next: NextFunction) => {
+        try {
+            const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            const valid = await this.businessUserService.checkIpValidity(req.user.id, ip!);
+            if (!valid) {
+                return res.status(403).json({message: "IP not allowed"});
+            } else {
+                next();
+            }
         } catch (e) {
             next(e);
         }
