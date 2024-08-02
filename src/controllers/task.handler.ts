@@ -29,7 +29,7 @@ class TaskHandler {
             results: t.results,
             taskType: t.taskType,
             model: t.model,
-            owner: t.ownerId.identifier
+            owner: t.ownerId?.identifier
         }
     }
 
@@ -82,7 +82,8 @@ class TaskHandler {
 
     public getSome = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            let tasks : any[] = await this.taskService.findSomeTasks(10);
+            const userId = (req.user as any)?.id;
+            let tasks : any[] = await this.taskService.findSomeTasks(10, userId);
             tasks = tasks.map( TaskHandler.taskStringify );
             // console.log(tasks)
             res.status(200).json({data: tasks, message: "OK"});
@@ -93,7 +94,12 @@ class TaskHandler {
 
     public getNewest = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const theTask = await this.taskService.getNewestOne();
+            const userId = (req.user as any)?.id;
+            console.log(`User ${userId} is querying for newest task`)
+            const theTask = await this.taskService.getNewestOne(userId);
+            if (!theTask) {
+                return res.status(404).json({message: "Task not found"});
+            }
             res.status(200).json({data: TaskHandler.taskStringify(theTask), message: "OK"});
         } catch (e) {
             next(e)
@@ -102,7 +108,8 @@ class TaskHandler {
 
     public getResults = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const r = await this.taskService.getResults(req.params.id);
+            const userId = (req.user as any)?.id;
+            const r = await this.taskService.getResults(req.params.id, userId);
             res.json({data: r, message: r.length ? "OK" : "Task not done yet"});
         } catch (e) {
             next(e)
@@ -123,13 +130,14 @@ class TaskHandler {
 
     public getTaskById = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const t = await this.taskService.getTaskById(req.params.id);
+            const userId = (req.user as any)?.id;
+            const t = await this.taskService.getTaskById(req.params.id, userId);
             if (!t) {
-                throw new HttpException(404, "Task not found.");
+                return res.status(404).json({message: "Task not found"});
             }
             res.json({data: TaskHandler.taskStringify(t), message: "OK"});
         } catch (e) {
-            next(e)
+            res.status(400).json({message: (e as any).message});
         }
     }
 }

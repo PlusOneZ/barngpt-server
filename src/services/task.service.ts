@@ -40,36 +40,40 @@ class TaskService {
         return ret!;
     }
 
-    public async findSomeTasks(count: number) {
+    public async findSomeTasks(count: number, userId: string | undefined) {
         if (count <= 0) return [];
         return await this.tasks.find(
-            {},
+            { "ownerId": userId },
             null,
             {limit: count}
-        ).sort({ updatedAt: "desc" }).exec();
+        )
+            .populate("ownerId")
+            .sort({ updatedAt: "desc" }).exec();
     }
 
-    public async getNewestOne() {
-        return await this.tasks.findOne({}).sort({ createdAt: "desc" }).populate("ownerId").exec();
+    public async getNewestOne(userId: string | undefined) {
+        return await this.tasks.findOne({ "ownerId": userId })
+            .sort({ createdAt: "desc" })
+            .populate("ownerId").exec();
     }
 
-    public async getResults(taskId: string) {
-        try {
-            const t = await this.tasks.findOne({_id: taskId}).exec();
-            if (!t) {
-                throw new HttpException(404, "Task not found.");
-            } else if (t.status !== "done") {
-                return [];
-            }
-            return t.results;
-        } catch (e) {
-            throw new HttpException(500, "Parsing task UUID failed.");
+    public async getResults(taskId: string, userId: string | undefined) {
+        const t = await this.tasks.findOne(
+            {_id: taskId, ownerId: userId}
+        ).exec();
+        if (!t) {
+            throw new HttpException(404, "Task not found.");
+        } else if (t.status !== "done") {
+            return [];
         }
+        return t.results;
     }
 
-    public async getTaskById(taskId: string) {
+    public async getTaskById(taskId: string, userId: string | undefined) {
         try {
-            return this.tasks.findOne({_id: taskId}).exec();
+            return this.tasks.findOne({_id: taskId, ownerId: userId})
+                .populate("ownerId")
+                .exec();
         } catch (e) {
             throw new HttpException(500, "Parsing task UUID failed.");
         }

@@ -14,17 +14,44 @@ class TaskRoute implements Route {
     }
 
     private initializeRoutes() {
+        const routes = Router();
+
         this.router.post(`${this.path}`, this.taskHandler.newTask);
-        this.router.post(
-            `${this.path}/withAuth`,
+        this.router.get(`${this.path}`, this.taskHandler.getNewest);
+
+        routes.get(`/some`, this.taskHandler.getSome);
+        routes.get(`/:id/results`, this.taskHandler.getResults);
+        routes.put(`/:taskId/hook`, this.taskHandler.hookResults);
+        routes.get(`/:id`, this.taskHandler.getTaskById);
+
+        // Authenticated routes
+        routes.post(
+            `/withAuth`,
             this.authHandler.requireBusinessJwtAuth,
             this.taskHandler.newTaskWithAuth
         )
-        this.router.get(`${this.path}/some`, this.taskHandler.getSome);
-        this.router.get(`${this.path}`, this.taskHandler.getNewest);
-        this.router.get(`${this.path}/:id/results`, this.taskHandler.getResults);
-        this.router.put(`${this.path}/:taskId/hook`, this.taskHandler.hookResults);
-        this.router.get(`${this.path}/:id`, this.taskHandler.getTaskById);
+        routes.get(
+            `/latest/withAuth`,
+            this.authHandler.requireBusinessJwtAuth,
+            this.taskHandler.getNewest
+        )
+        routes.get(
+            `/some/withAuth`,
+            this.authHandler.requireBusinessJwtAuth,
+            this.taskHandler.getSome
+        )
+        routes.get(
+            `/withAuth/results/:id`,
+            this.authHandler.requireBusinessJwtAuth,
+            this.taskHandler.getResults
+        )
+        routes.get(
+            `/withAuth/:id`,
+            this.authHandler.requireBusinessJwtAuth,
+            this.taskHandler.getTaskById
+        )
+
+        this.router.use(this.path, routes);
     }
 }
 

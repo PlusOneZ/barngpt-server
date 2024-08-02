@@ -168,7 +168,7 @@ class AuthService {
 
     public requireBusinessJwtAuth = (req: Request, res: Response, next: NextFunction) => {
         passport.authenticate("business-jwt", (err: Error | null, user: any) => {
-            console.log("Authenticating with jwt...")
+            // console.log("Authenticating with jwt...")
             if (err) {
                 // console.log(err)
                 return res.status(401).json({ error: 'unauthorized', message: err.message })
@@ -184,7 +184,7 @@ class AuthService {
     public requireBusinessAdmin = (req: any, res: Response, next: NextFunction) => {
         if (req.user && req.user.identifier === "admin") {
             console.log(req.user)
-            console.log("Checking admin...")
+            // console.log("Checking admin...")
             next()
         } else {
             console.log(req.dir)
