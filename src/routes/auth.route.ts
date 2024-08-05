@@ -1,7 +1,6 @@
 import { Router } from "express";
 import AuthService from "../services/auth.service";
 import Route from "../interfaces/Route.interface";
-import passport from "passport";
 
 class AuthRoute implements Route {
     public path = '/auth';

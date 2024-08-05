@@ -13,6 +13,14 @@ const creditHistorySchema = new Schema({
     note: { type: Schema.Types.String },
 })
 
+creditHistorySchema.methods.toJSON = function () {
+    return {
+        amount: this.amount,
+        date: this.date,
+        note: this.note
+    }
+}
+
 const CreditHistoryModel = model<ICreditHistory>("CreditHistory", creditHistorySchema)
 
 interface IBUser {
@@ -99,7 +107,7 @@ bUserSchema.method("createBUser", async function createBUser(user: any) {
 })
 
 bUserSchema.method("addCredits", async function addCredits(amount: number, note: string = "Added credits.") {
-    if (amount <= 0) return
+    if (amount === 0) return
     this.$inc("credits", amount)
     this.creditHistory.push(new CreditHistoryModel({ amount, note }))
     await this.save()
@@ -118,6 +126,7 @@ bUserSchema.method("checkIp", function checkIp(ip: string) {
 })
 
 bUserSchema.method("addIp", async function addIp(ip: string) {
+    if(this.iPWhiteList.includes(ip)) return
     this.iPWhiteList.push(ip)
     await this.save()
 })

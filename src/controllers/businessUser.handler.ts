@@ -12,7 +12,7 @@ const addIpSchema = Joi.object().keys({
 
 const addCreditsSchema = Joi.object().keys({
     identifier: Joi.string().required(),
-    amount: Joi.number().min(1).max(9999).required(),
+    amount: Joi.number().min(-9999).max(9999).required(),
     note: Joi.string()
 })
 
@@ -23,9 +23,15 @@ class BusinessUserHandler {
         try {
             const { identifier } = req.params;
             const user = await this.businessUserService.getBusinessUserByIdentifier(identifier);
-            res.status(200).json({ data: user });
+            res.status(200).json({ data: {
+                  ...(user?.toJSON()),
+                  creditsHistory: user?.creditHistory
+                }});
         } catch (e) {
-            next(e);
+            res.status(400).json({
+                message: "Error when processing",
+                system_err: (e as Error).message
+            });
         }
     }
 
@@ -36,7 +42,10 @@ class BusinessUserHandler {
             const user = await this.businessUserService.getBusinessUserByObjId(id);
             res.status(200).json({ data: user });
         } catch (e) {
-            next(e);
+            res.status(400).json({
+                message: "Error when processing",
+                system_err: (e as Error).message
+            });
         }
     }
 
@@ -45,9 +54,12 @@ class BusinessUserHandler {
         try {
             const id = (req.user as any).id;
             const amount = await this.businessUserService.getCreditAmount(id);
-            res.status(200).json({ data: amount });
+            res.status(200).json({ data: { credits: amount} });
         } catch (e) {
-            next(e);
+            res.status(400).json({
+                message: "Error when processing",
+                system_err: (e as Error).message
+            });
         }
     }
 
@@ -64,7 +76,10 @@ class BusinessUserHandler {
                 history: user.creditHistory
             } });
         } catch (e) {
-            next(e);
+            res.status(400).json({
+                message: "Error when processing",
+                system_err: (e as Error).message
+            });
         }
     }
 
@@ -81,7 +96,10 @@ class BusinessUserHandler {
                 message: "Credits added"
             });
         } catch (e) {
-            next(e);
+            res.status(400).json({
+                message: "Error when processing",
+                system_err: (e as Error).message
+            });
         }
     }
 
@@ -96,7 +114,10 @@ class BusinessUserHandler {
             const user = await this.businessUserService.toggleCheckIp(id, enableIpCheck);
             res.status(200).json({ data: user, message: "Option toggled." });
         } catch (e) {
-            next(e);
+            res.status(400).json({
+                message: "Error when processing",
+                system_err: (e as Error).message
+            });
         }
     }
 
@@ -111,7 +132,10 @@ class BusinessUserHandler {
             const user = await this.businessUserService.addIpToWhiteList(id, ip);
             res.status(200).json({ data: user, message: "IP added." });
         } catch (e) {
-            next(e);
+            res.status(400).json({
+                message: "Error when processing",
+                system_err: (e as Error).message
+            });
         }
     }
 
@@ -122,14 +146,17 @@ class BusinessUserHandler {
                 data: {ip, hip: req.headers['x-forwarded-for']},
                 message: `Current IP address. Validation: ${await this.businessUserService.checkIpValidity((req.user as any).id, ip!)}`});
         } catch (e) {
-            next(e);
+            res.status(400).json({
+                message: "Error when processing",
+                system_err: (e as Error).message
+            });
         }
     }
 
     public requireBusinessUserIpCheck = async (req: any, res: Response, next: NextFunction) => {
         try {
             const ip = req.ip;
-            console.log(req.user, ip);
+            // console.log(req.user, ip);
             const valid = await this.businessUserService.checkIpValidity(req.user.id, ip!);
             if (!valid) {
                 return res.status(403).json({message: "IP not allowed"});
@@ -137,7 +164,10 @@ class BusinessUserHandler {
                 next();
             }
         } catch (e) {
-            next(e);
+            res.status(400).json({
+                message: "Error when processing",
+                system_err: (e as Error).message
+            });
         }
     }
 
@@ -146,7 +176,10 @@ class BusinessUserHandler {
             const users = await this.businessUserService.getAllBusinessUsers();
             return res.status(200).json({ data: users });
         } catch (e) {
-            next(e);
+            res.status(400).json({
+                message: "Error when processing",
+                system_err: (e as Error).message
+            });
         }
     }
 }

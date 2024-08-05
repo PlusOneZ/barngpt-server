@@ -53,9 +53,9 @@ class AuthService {
         try {
             const token = generateBusinessJWT(req.user);
             const me = req.user!;
-            res.json({token, me});
+            res.json({ data: {token, me}, message: "OK"});
         } catch (err) {
-            throw new HttpException(401, "Authentication Failed")
+            res.status(401).json({error: "Authentication Failed"})
         }
     };
 
@@ -186,7 +186,6 @@ class AuthService {
             // user is admin payload
             next()
         } else {
-            console.log(req.dir)
             res.status(401).json({ error: 'unauthorized', message: 'Not Admin' })
         }
     }

@@ -23,9 +23,9 @@ export const registerSchema = Joi.object().keys({
 });
 
 export const businessRegisterSchema = Joi.object().keys({
-    identifier: Joi.string().trim().min(2).max(30).required(),
+    identifier: Joi.string().alphanum().trim().min(2).max(30).required(),
     description: Joi.string().required(),
-    password: Joi.string().trim().min(6).max(20).required(),
+    password: Joi.string().trim().min(6).max(40).required(),
 });
 
 export const businessJwtPayloadSchema = Joi.object().keys({

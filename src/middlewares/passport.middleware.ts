@@ -96,7 +96,6 @@ const jwtLogin = new JwtStrategy(
         }
         UserModel.findOne({ "email": payload.email }).then(function ( user) {
             if (user) {
-                // console.log(`user: ${user}`)
                 return done(null, user)
             } else {
                 return done(null, false)
