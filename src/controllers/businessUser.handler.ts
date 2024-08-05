@@ -128,13 +128,23 @@ class BusinessUserHandler {
 
     public requireBusinessUserIpCheck = async (req: any, res: Response, next: NextFunction) => {
         try {
-            const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            const ip = req.ip;
+            console.log(req.user, ip);
             const valid = await this.businessUserService.checkIpValidity(req.user.id, ip!);
             if (!valid) {
                 return res.status(403).json({message: "IP not allowed"});
             } else {
                 next();
             }
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    public getSomeUsers = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const users = await this.businessUserService.getAllBusinessUsers();
+            return res.status(200).json({ data: users });
         } catch (e) {
             next(e);
         }

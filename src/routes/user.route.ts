@@ -16,12 +16,27 @@ class BusinessUserRoute implements Route {
     private initializeRoutes() {
         const routes = Router();
 
-        // Admin can check all users
+        // Admin can check all users and add
+        routes.get(
+            '/admin/all/users',
+            this.authHandler.requireBusinessJwtAuth,
+            this.authHandler.requireBusinessAdmin,
+            this.businessUserHandler.requireBusinessUserIpCheck,
+            this.businessUserHandler.getSomeUsers
+        )
         routes.get(
             '/admin/:identifier',
             this.authHandler.requireBusinessJwtAuth,
             this.authHandler.requireBusinessAdmin,
+            this.businessUserHandler.requireBusinessUserIpCheck,
             this.businessUserHandler.getUserByIdentifier
+        );
+        routes.post(
+            '/admin/add',
+            this.authHandler.requireBusinessJwtAuth,
+            this.authHandler.requireBusinessAdmin,
+            this.businessUserHandler.requireBusinessUserIpCheck,
+            this.authHandler.addBusinessUser
         );
 
         // My own Info
@@ -38,6 +53,7 @@ class BusinessUserRoute implements Route {
         routes.get(
             "/credits/history",
             this.authHandler.requireBusinessJwtAuth,
+            this.businessUserHandler.requireBusinessUserIpCheck,
             this.businessUserHandler.getMyCreditsHistory
         )
 
@@ -46,6 +62,7 @@ class BusinessUserRoute implements Route {
             "/admin/add/credits",
             this.authHandler.requireBusinessJwtAuth,
             this.authHandler.requireBusinessAdmin,
+            this.businessUserHandler.requireBusinessUserIpCheck,
             this.businessUserHandler.addCredits
         )
 
@@ -53,11 +70,13 @@ class BusinessUserRoute implements Route {
         routes.put(
             "/toggle/ip",
             this.authHandler.requireBusinessJwtAuth,
+            this.businessUserHandler.requireBusinessUserIpCheck,
             this.businessUserHandler.checkIpOption
         )
         routes.post(
             "/add/ip",
             this.authHandler.requireBusinessJwtAuth,
+            this.businessUserHandler.requireBusinessUserIpCheck,
             this.businessUserHandler.addIpToWhiteList
         )
 
@@ -66,6 +85,14 @@ class BusinessUserRoute implements Route {
             "/check/ip",
             this.authHandler.requireBusinessJwtAuth,
             this.businessUserHandler.currentIpAddress
+        )
+        routes.get(
+            "/test/ip",
+            this.authHandler.requireBusinessJwtAuth,
+            this.businessUserHandler.requireBusinessUserIpCheck,
+            (req: any, res: any) => {
+                res.send({ message: 'You are authenticated' })
+            }
         )
 
         this.router.use(this.path, routes);

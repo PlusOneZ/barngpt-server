@@ -15,27 +15,21 @@ class AuthRoute implements Route {
     private initializeRoutes() {
         // Local
         const routes = Router()
-        routes.post(
-            '/login',
-            this.authHandler.requireLocalAuth,
-            this.authHandler.afterLocalLogin
-        );
-        routes.post(
-            '/register',
-            this.authHandler.localRegister
-        )
-        routes.get(
-            '/logout',
-            this.authHandler.logout
-        )
+        // routes.post(
+        //     '/login',
+        //     this.authHandler.requireLocalAuth,
+        //     this.authHandler.afterLocalLogin
+        // );
+        // routes.post(
+        //     '/register',
+        //     this.authHandler.localRegister
+        // )
+        // routes.get(
+        //     '/logout',
+        //     this.authHandler.logout
+        // )
 
         // Business Local
-        routes.post(
-            '/business/user/add',
-            this.authHandler.requireBusinessJwtAuth,
-            this.authHandler.requireBusinessAdmin,
-            this.authHandler.addBusinessUser
-        )
         routes.post(
             '/business/login',
             this.authHandler.requireBusinessAuth,
@@ -67,38 +61,38 @@ class AuthRoute implements Route {
         )
 
         // Google
-        routes.get(
-            '/google',
-            passport.authenticate('google', {
-                scope: ['profile', 'email'],
-                session: false,
-            })
-        )
-        routes.get(
-            '/google/callback',
-            passport.authenticate('google', {
-                failureRedirect: '/',
-                failureFlash: true,
-                session: false,
-            }),
-            this.authHandler.after3rdLogin
-        )
+        // routes.get(
+        //     '/google',
+        //     passport.authenticate('google', {
+        //         scope: ['profile', 'email'],
+        //         session: false,
+        //     })
+        // )
+        // routes.get(
+        //     '/google/callback',
+        //     passport.authenticate('google', {
+        //         failureRedirect: '/',
+        //         failureFlash: true,
+        //         session: false,
+        //     }),
+        //     this.authHandler.after3rdLogin
+        // )
 
         // Facebook
-        routes.get(
-            '/facebook',
-            passport.authenticate('facebook', {
-                scope: ['public_profile', 'email'],
-            }),
-        )
-        routes.get(
-            '/facebook/callback',
-            passport.authenticate('facebook', {
-                failureRedirect: '/',
-                session: false,
-            }),
-            this.authHandler.after3rdLogin
-        )
+        // routes.get(
+        //     '/facebook',
+        //     passport.authenticate('facebook', {
+        //         scope: ['public_profile', 'email'],
+        //     }),
+        // )
+        // routes.get(
+        //     '/facebook/callback',
+        //     passport.authenticate('facebook', {
+        //         failureRedirect: '/',
+        //         session: false,
+        //     }),
+        //     this.authHandler.after3rdLogin
+        // )
 
         this.router.use(this.path, routes)
     }

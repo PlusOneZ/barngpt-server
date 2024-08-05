@@ -3,10 +3,6 @@ import { ObjectId } from "bson"
 
 class BusinessUserService {
 
-    public checkUserPayload = async (payload: any) => {
-
-    }
-
     public getBusinessUserByObjId = async (_id: string) => {
         const oid = new ObjectId(_id);
         return await BUserModel.findOne({_id: oid}).exec();
@@ -14,6 +10,10 @@ class BusinessUserService {
 
     public getBusinessUserByIdentifier = async (identifier: string) => {
         return await BUserModel.findOne({identifier}).exec();
+    }
+
+    public getAllBusinessUsers = async () => {
+        return await BUserModel.find({}).limit(99).exec();
     }
 
     public addCreditsToUser = async (identifier: string, amount: number, note: string) => {
@@ -25,13 +25,13 @@ class BusinessUserService {
         return user;
     }
 
-    public deductUserCredits = async (_id: string, amount: number) => {
-        const user = await this.getBusinessUserByObjId(_id);
-        if (!user) {
-            throw new Error("User not found.");
-        }
-        user.deductCredits(amount);
-    }
+    // public deductUserCredits = async (_id: string, amount: number) => {
+    //     const user = await this.getBusinessUserByObjId(_id);
+    //     if (!user) {
+    //         throw new Error("User not found.");
+    //     }
+    //     user.deductCredits(amount);
+    // }
 
     public getCreditAmount = async (_id: string) => {
         const user = await this.getBusinessUserByObjId(_id);

@@ -153,7 +153,7 @@ class AuthService {
         // The way to provide this auth is to have a
         // Bearer token in the Authorization header
         passport.authenticate("jwt", (err: Error | null, user: any) => {
-            console.log("Authenticating with jwt...")
+            // console.log("Authenticating with jwt...")
             if (err) {
                 // console.log(err)
                 return res.status(401).json({ error: 'unauthorized', message: err.message })
@@ -183,8 +183,7 @@ class AuthService {
 
     public requireBusinessAdmin = (req: any, res: Response, next: NextFunction) => {
         if (req.user && req.user.identifier === "admin") {
-            console.log(req.user)
-            // console.log("Checking admin...")
+            // user is admin payload
             next()
         } else {
             console.log(req.dir)
