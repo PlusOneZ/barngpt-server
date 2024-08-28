@@ -2,12 +2,14 @@ import { Router } from "express"
 import TaskHandler from "../controllers/task.handler";
 import Route from "../interfaces/Route.interface";
 import AuthService from "../services/auth.service";
+import BusinessUserHandler from "../controllers/businessUser.handler";
 
 class TaskRoute implements Route {
     public path = '/task'
     public router = Router();
     public taskHandler = new TaskHandler();
     public authHandler = new AuthService();
+    public businessUserHandler = new BusinessUserHandler();
 
     constructor() {
         this.initializeRoutes();
@@ -19,6 +21,7 @@ class TaskRoute implements Route {
         this.router.post(
             `${this.path}`,
             this.authHandler.requireBusinessJwtAuth,
+            this.businessUserHandler.requireBusinessUserIpCheck,
             this.taskHandler.newTaskWithAuth
         );
         this.router.get(
@@ -38,6 +41,7 @@ class TaskRoute implements Route {
             this.taskHandler.getResults
         );
 
+        // TODO: Add security methods
         routes.put(
             `/:taskId/hook`,
             this.taskHandler.hookResults
@@ -53,6 +57,7 @@ class TaskRoute implements Route {
         routes.post(
             `/withAuth`,
             this.authHandler.requireBusinessJwtAuth,
+            this.businessUserHandler.requireBusinessUserIpCheck,
             this.taskHandler.newTaskWithAuth
         )
         routes.get(
