@@ -48,7 +48,7 @@ class BusinessUserService {
         }
         user.enableIpCheck = setTo;
         if (setTo === false) {
-            user.iPWhiteList = [];
+            user.iPWhiteList = ["::1", "::ffff:127.0.0.1"];
         }
         await user.save();
         return user;

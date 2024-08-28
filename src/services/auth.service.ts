@@ -131,6 +131,7 @@ class AuthService {
                     identifier,
                     password,
                     description,
+                    iPWhiteList: ["::1", "::ffff:127.0.0.1"], // localhost must be able to access
                 });
 
                 newUser.createBUser(newUser);
