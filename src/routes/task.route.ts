@@ -16,13 +16,38 @@ class TaskRoute implements Route {
     private initializeRoutes() {
         const routes = Router();
 
-        this.router.post(`${this.path}`, this.taskHandler.newTask);
-        this.router.get(`${this.path}`, this.taskHandler.getNewest);
+        this.router.post(
+            `${this.path}`,
+            this.authHandler.requireBusinessJwtAuth,
+            this.taskHandler.newTaskWithAuth
+        );
+        this.router.get(
+            `${this.path}`,
+            this.authHandler.requireBusinessJwtAuth,
+            this.taskHandler.getNewest
+        );
 
-        routes.get(`/some`, this.taskHandler.getSome);
-        routes.get(`/:id/results`, this.taskHandler.getResults);
-        routes.put(`/:taskId/hook`, this.taskHandler.hookResults);
-        routes.get(`/:id`, this.taskHandler.getTaskById);
+        routes.get(
+            `/some`,
+            this.authHandler.requireBusinessJwtAuth,
+            this.taskHandler.getSome
+        );
+        routes.get(
+            `/:id/results`,
+            this.authHandler.requireBusinessJwtAuth,
+            this.taskHandler.getResults
+        );
+
+        routes.put(
+            `/:taskId/hook`,
+            this.taskHandler.hookResults
+        );
+
+        routes.get(
+            `/:id`,
+            this.authHandler.requireBusinessJwtAuth,
+            this.taskHandler.getTaskById
+        );
 
         // Authenticated routes
         routes.post(
