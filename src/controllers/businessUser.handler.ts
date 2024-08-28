@@ -111,6 +111,16 @@ class BusinessUserHandler {
         try {
             const id = (req.user as any).id;
             const { enableIpCheck } = req.body;
+            if (enableIpCheck) {
+                // Check if current IP is in whitelist,
+                // If not, this action will abort
+                const ip = req.ip;
+                if (!await this.businessUserService.checkIpAnyway(id, ip!)) {
+                    return res.send(403).json({
+                        message: "Current IP not in whitelist, add it before turning on IP check."
+                    });
+                }
+            }
             const user = await this.businessUserService.toggleCheckIp(id, enableIpCheck);
             res.status(200).json({ data: user, message: "Option toggled." });
         } catch (e) {

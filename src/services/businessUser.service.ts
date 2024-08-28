@@ -47,11 +47,19 @@ class BusinessUserService {
             throw new Error("User not found.");
         }
         user.enableIpCheck = setTo;
-        if (setTo === false) {
+        if (!setTo) {
             user.iPWhiteList = ["::1", "::ffff:127.0.0.1"];
         }
         await user.save();
         return user;
+    }
+
+    public checkIpAnyway = async (_id: string, _ip: string) => {
+        const user = await this.getBusinessUserByObjId(_id);
+        if (!user) {
+            throw new Error("User not found.");
+        }
+        return user.iPWhiteList.includes(_ip);
     }
 
     public addIpToWhiteList = async (_id: string, ip: string) => {
