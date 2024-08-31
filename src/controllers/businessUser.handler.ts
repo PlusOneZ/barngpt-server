@@ -29,7 +29,7 @@ class BusinessUserHandler {
             const { identifier } = req.params;
             const user = await this.businessUserService.getBusinessUserByIdentifier(identifier);
             res.status(200).json({ data: {
-                  ...(user?.toJSON()),
+                  ...(user?.toAdminJSON()),
                   creditsHistory: user?.creditHistory
                 }});
         } catch (e) {
@@ -97,7 +97,7 @@ class BusinessUserHandler {
             const { identifier, amount, note } = req.body;
             const user = await this.businessUserService.addCreditsToUser(identifier, amount, note);
             res.status(200).json({
-                data: {user, transaction: user.creditHistory[user.creditHistory.length - 1]},
+                data: {user: user.toAdminJSON(), transaction: user.creditHistory[user.creditHistory.length - 1]},
                 message: "Credits added"
             });
         } catch (e) {
@@ -116,7 +116,7 @@ class BusinessUserHandler {
         try {
             const { identifier, currency } = req.body;
             const user = await this.businessUserService.changeUserCurrency(identifier, currency);
-            res.status(200).json({ data: user, message: "Currency changed" });
+            res.status(200).json({ data: user.toAdminJSON(), message: "Currency changed" });
         } catch (e) {
             res.status(400).json({
                 message: "Error when processing",
@@ -206,7 +206,7 @@ class BusinessUserHandler {
     public getSomeUsers = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const users = await this.businessUserService.getAllBusinessUsers();
-            return res.status(200).json({ data: users });
+            return res.status(200).json({ data: users.forEach((t) => t.toAdminJSON) });
         } catch (e) {
             res.status(400).json({
                 message: "Error when processing",

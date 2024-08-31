@@ -107,7 +107,8 @@ bUserSchema.method("toAdminJSON", function toAdminJSON() {
         credits: this.credits,
         enableIpCheck: this.enableIpCheck,
         iPWhiteList: this.iPWhiteList,
-        latestCredit: this.creditHistory[this.creditHistory.length - 1],
+        currency: this.currency,
+        latestCreditHistory: this.creditHistory[this.creditHistory.length - 1],
     }
 })
 

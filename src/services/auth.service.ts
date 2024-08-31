@@ -135,7 +135,7 @@ class AuthService {
                 });
 
                 newUser.createBUser(newUser);
-                res.json({ message: 'Register success.' });
+                res.json({ message: 'Register success.', data: newUser.toAdminJSON() });
             } catch (err) {
                 return next(err);
             }

@@ -38,6 +38,12 @@ class BusinessUserRoute implements Route {
             this.businessUserHandler.requireBusinessUserIpCheck,
             this.authHandler.addBusinessUser
         );
+        routes.put("/admin/change/currency",
+            this.authHandler.requireBusinessJwtAuth,
+            this.authHandler.requireBusinessAdmin,
+            this.businessUserHandler.requireBusinessUserIpCheck,
+            this.businessUserHandler.changeCurrency
+        );
 
         // My own Info
         routes.get(
