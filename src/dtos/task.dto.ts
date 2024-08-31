@@ -3,12 +3,13 @@ import { ObjectId } from "bson";
 import HttpException from "../exceptions/HttpException";
 
 export class CreateTaskDto {
-    constructor(content_: { prompts: [Prompt] }, type_: string = "dummy", model_: string = "default", status_: string = "pending") {
+    constructor(content_: { prompts: [Prompt] }, type_: string = "dummy", model_: string = "default", options: any = undefined, status_: string = "pending") {
         this.content = content_
         this.taskType = type_
         this.model = model_
         this.status = status_
         this.deferModel()
+        this.options = options
     }
 
     public content : { prompts: [Prompt] };
@@ -16,6 +17,7 @@ export class CreateTaskDto {
     public status : string = "pending";
     public model : string;
     public ownerId : ObjectId | undefined;
+    public options : any;
 
     public setOwner(_id: string) {
         this.ownerId = new ObjectId(_id)
@@ -55,7 +57,7 @@ export class CreateTaskDto {
             }
         })
 
-        return new CreateTaskDto({ prompts: prompts }, json.taskType, json.model)
+        return new CreateTaskDto({ prompts: prompts }, json.taskType, json.model, json.options)
     }
 
     /**

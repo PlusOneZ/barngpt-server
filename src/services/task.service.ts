@@ -1,6 +1,6 @@
 import { TaskModel, Task } from "../models/task.model";
-import HttpException from "../exceptions/HttpException";
 import {CreateTaskDto} from "../dtos/task.dto";
+import HttpException from "../exceptions/HttpException";
 import FileService from "./file.service";
 
 class TaskService {

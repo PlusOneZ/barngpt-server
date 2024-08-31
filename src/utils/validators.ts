@@ -67,7 +67,10 @@ const getSchema = (...models: string[])=> {
                 Joi.string().required()
             )).min(1).required()
         }).required(),
-        model: Joi.string().valid("default", ...models)
+        model: Joi.string().valid("default", ...models),
+        options: Joi.object().keys({
+            size: Joi.string().valid("256x256", "512x512", "1024x1024", "1024x1792", "1792x1024"),
+        })
     });
 }
 

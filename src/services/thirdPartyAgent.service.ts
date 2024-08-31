@@ -6,6 +6,7 @@ import FileService from "./file.service";
 import {composePrompts, removePromptId} from "../utils/prompts";
 import AudioService from "./audio.service";
 import { getWhisperPrice, getTTSPrice } from "../utils/constants";
+import { modelPrices } from "../utils/constants";
 
 
 dotenv.config({path: `.env.${process.env.NODE_ENV}`})
@@ -33,6 +34,8 @@ class ThirdPartyAgentService {
     private readonly responseHandler = (url: string) => {
         return (response: any) => {
             console.log(`Response (success) from URL ${url}: ${response}`);
+            console.log(response.status)
+            console.log(response.body)
         }
     }
 
@@ -52,18 +55,24 @@ class ThirdPartyAgentService {
         }
     }
 
+    public getAllModelPrices(currency: number) {
+        // every number entry in MODEL_PRICES times currency
+        return modelPrices(currency);
+    }
+
     public async doTask(taskData: Task) {
         const taskId = taskData._id.toString();
         const taskModel = taskData.model;
         // const hook = this.createHook(taskId);
         const prompts = removePromptId(taskData.content.prompts);
+        const options = taskData.options;
         switch (taskData.taskType) {
             case "chat":
                 return this.sendChatReq(taskId, prompts, taskModel);
             case "image-generation":
                 return this.sendImageGenReq(taskId, {
                     image_prompt: composePrompts(prompts)
-                }, taskModel);
+                }, taskModel, options);
             case "image-recognition":
                 return this.sendVisionReq(taskId, prompts, taskModel);
             case "audio-generation":
@@ -83,11 +92,11 @@ class ThirdPartyAgentService {
             .catch(this.errorHandler(url, prompts, tid, "chat"));
     }
 
-    private async sendImageGenReq(tid: string, data: { image_prompt: string }, model: string) {
+    private async sendImageGenReq(tid: string, data: { image_prompt: string }, model: string, options: any) {
         // send a image generation request
         const hook = this.createHook(tid);
         const url = this.API_URL + "/task/image/generation"
-        axios.post(url, {data: data, hook: hook, model: model})
+        axios.post(url, {data: data, hook: hook, model: model, options: options})
             .then(this.responseHandler(url))
             .catch(this.errorHandler(url, data, tid, "image-generation"));
     }
@@ -207,10 +216,13 @@ class ThirdPartyAgentService {
             console.error(`Task ${taskId} not found.`);
             return;
         }
+        let currencyUsed = 10.
         if (task.ownerId) {
             const owner = task.ownerId as any;
+            const currency = owner.currency ? owner.currency : currencyUsed;
+            currencyUsed = currency
             results.forEach((r: any) => {
-                owner.deductCredits(r.usage);
+                owner.deductCredits(r.usage * currency);
             })
         } else {
             console.log(`Task ${taskId} not charged.`)
@@ -222,10 +234,13 @@ class ThirdPartyAgentService {
                 return {
                     type: r.type,
                     url: this.fileService.imageUrl(`${taskId}.png`),
-                    usage: r.usage
+                    usage: r.usage * currencyUsed
                 }
             }
-            return r
+            return {
+                ...r,
+                usage: r.usage * currencyUsed
+            }
         })
         if (results) {
             // update task status
@@ -247,8 +262,6 @@ class ThirdPartyAgentService {
                 console.error(`Error while updating Task ${taskId}: ${e}`);
             });
         }
-        // option 2: push notification to the user
-        // TODO：support from client side.
     }
 }
 

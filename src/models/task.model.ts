@@ -45,6 +45,7 @@ const taskSchema = new Schema({
     },
     results: [Schema.Types.Mixed],
     ownerId: { type: Schema.Types.ObjectId, ref: 'BusinessUser' },
+    options: { type: Schema.Types.Mixed },
 }, { timestamps: true })
 
 type Task = InferSchemaType<typeof taskSchema>;

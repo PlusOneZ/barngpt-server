@@ -29,7 +29,8 @@ class TaskHandler {
             results: t.results,
             taskType: t.taskType,
             model: t.model,
-            owner: t.ownerId?.identifier
+            owner: t.ownerId?.identifier,
+            options: t.options
         }
     }
 
@@ -138,6 +139,16 @@ class TaskHandler {
             res.json({data: TaskHandler.taskStringify(t), message: "OK"});
         } catch (e) {
             res.status(400).json({message: (e as any).message});
+        }
+    }
+
+    public getPrices = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const currency = (req.user as any).currency;
+            const prices = this.agentService.getAllModelPrices(currency);
+            res.json({data: prices, message: "OK"});
+        } catch (e) {
+            next(e)
         }
     }
 }
