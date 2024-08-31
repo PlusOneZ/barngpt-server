@@ -16,6 +16,11 @@ const addCreditsSchema = Joi.object().keys({
     note: Joi.string()
 })
 
+const changeCurrencySchema = Joi.object().keys({
+    identifier: Joi.string().required(),
+    currency: Joi.number().min(0.1).max(100).required(),
+})
+
 class BusinessUserHandler {
     businessUserService = new BusinessUserService();
 
@@ -95,6 +100,23 @@ class BusinessUserHandler {
                 data: {user, transaction: user.creditHistory[user.creditHistory.length - 1]},
                 message: "Credits added"
             });
+        } catch (e) {
+            res.status(400).json({
+                message: "Error when processing",
+                system_err: (e as Error).message
+            });
+        }
+    }
+
+    public changeCurrency = async (req: Request, res: Response, next: NextFunction) => {
+        const { error } = changeCurrencySchema.validate(req.body)
+        if (error) {
+            return res.status(442).send({ message: error.details[0].message, error: "format" });
+        }
+        try {
+            const { identifier, currency } = req.body;
+            const user = await this.businessUserService.changeUserCurrency(identifier, currency);
+            res.status(200).json({ data: user, message: "Currency changed" });
         } catch (e) {
             res.status(400).json({
                 message: "Error when processing",

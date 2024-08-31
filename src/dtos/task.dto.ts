@@ -22,9 +22,9 @@ export class CreateTaskDto {
     }
 
     public static defaultModelMap: any = {
-        "chat": "gpt-3.5-turbo",
+        "chat": "gpt-4o-mini",
         "image-generation": "dall-e-2",
-        "image-recognition": "gpt-4o",
+        "image-recognition": "gpt-4o-2024-08-06",
         "audio-generation": "tts-1",
         "audio-recognition": "whisper-1"
     }

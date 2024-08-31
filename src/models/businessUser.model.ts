@@ -28,6 +28,7 @@ interface IBUser {
     description: string,
     password: string,
     credits: number,
+    currency: number,
     enableIpCheck: boolean,
     iPWhiteList: string[],
     creditHistory: ICreditHistory[],
@@ -40,6 +41,8 @@ interface IBUserMethods {
     checkIp(ip: string): boolean,
     addIp(ip: string): void,
     createBUser(user: any): void,
+    toAdminJSON(): any,
+    changeCurrency(currency: number): void,
 }
 
 type BUserModel = Model<IBUser, {}, IBUserMethods>;
@@ -79,6 +82,11 @@ const bUserSchema = new Schema<IBUser, BUserModel, IBUserMethods>({
         type: [creditHistorySchema],
         default: [],
         required: true,
+    },
+    currency: {
+        type: Schema.Types.Number,
+        default: 10.,
+        required: true,
     }
 })
 
@@ -91,6 +99,17 @@ bUserSchema.methods.toJSON = function () {
         iPWhiteList: this.iPWhiteList
     }
 }
+
+bUserSchema.method("toAdminJSON", function toAdminJSON() {
+    return {
+        identifier: this.identifier,
+        description: this.description,
+        credits: this.credits,
+        enableIpCheck: this.enableIpCheck,
+        iPWhiteList: this.iPWhiteList,
+        latestCredit: this.creditHistory[this.creditHistory.length - 1],
+    }
+})
 
 bUserSchema.method("createBUser", async function createBUser(user: any) {
     bcrypt.genSalt(10, (err, salt) => {
@@ -115,6 +134,15 @@ bUserSchema.method("addCredits", async function addCredits(amount: number, note:
 
 bUserSchema.method("deductCredits", async function deductCredits(amount: number) {
     this.$inc("credits", -amount)
+    await this.save()
+})
+
+bUserSchema.method("changeCurrency", async function changeCurrency(currency: number) {
+    if (currency <= 0.1) {
+        console.log("Currency must be no less than 0.1.")
+        return
+    }
+    this.currency = currency
     await this.save()
 })
 

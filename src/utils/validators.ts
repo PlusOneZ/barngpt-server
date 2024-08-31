@@ -48,7 +48,11 @@ const chatSchema = Joi.object().keys({
             Joi.string().required()
         )).min(1).required()
     }).required(),
-    model: Joi.string().valid("default", "gpt-3.5-turbo", "gpt-4o", "gpt-4", "gpt-4-turbo")
+    model: Joi.string().valid(
+        "default", "gpt-3.5-turbo",
+        "gpt-4o", "gpt-4", "gpt-4-turbo",
+        "gpt-4o-mini", "gpt-4o-2024-08-06"
+    )
 });
 
 const getSchema = (...models: string[])=> {
@@ -67,8 +71,12 @@ const getSchema = (...models: string[])=> {
     });
 }
 
-const imageGenerationSchema = getSchema("dall-e-2", "dall-e-3")
-const audioGenerationSchema = getSchema( "tts-1", "tts-1-hd")
+const imageGenerationSchema = getSchema(
+    "dall-e-2", "dall-e-3"
+)
+const audioGenerationSchema = getSchema(
+    "tts-1", "tts-1-hd"
+)
 
 const imageRecognitionSchema = Joi.object().keys({
     taskType: Joi.string().required(),
@@ -88,7 +96,11 @@ const imageRecognitionSchema = Joi.object().keys({
             // must have a image_url item
         })).min(1).required()
     }).required(),
-    model: Joi.string().valid("default", "gpt-4o", "gpt-4-turbo")
+    model: Joi.string().valid(
+        "default", "gpt-4o",
+        "gpt-4-turbo", "gpt-4o-mini",
+        "gpt-4o-2024-08-06"
+    )
 });
 
 const audioRecognitionSchema = Joi.object().keys({

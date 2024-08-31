@@ -25,13 +25,14 @@ class BusinessUserService {
         return user;
     }
 
-    // public deductUserCredits = async (_id: string, amount: number) => {
-    //     const user = await this.getBusinessUserByObjId(_id);
-    //     if (!user) {
-    //         throw new Error("User not found.");
-    //     }
-    //     user.deductCredits(amount);
-    // }
+    public changeUserCurrency = async (identifier: string, currency: number) => {
+        const user = await this.getBusinessUserByIdentifier(identifier);
+        if (!user) {
+            throw new Error("User not found.");
+        }
+        user.changeCurrency(currency);
+        return user;
+    }
 
     public getCreditAmount = async (_id: string) => {
         const user = await this.getBusinessUserByObjId(_id);
@@ -39,6 +40,14 @@ class BusinessUserService {
             throw new Error("User not found.");
         }
         return user.credits
+    }
+
+    public getUserCurrency = async (_id: string) => {
+        const user = await this.getBusinessUserByObjId(_id);
+        if (!user) {
+            throw new Error("User not found.");
+        }
+        return user.currency
     }
 
     public toggleCheckIp = async (_id: string, setTo: boolean) => {
