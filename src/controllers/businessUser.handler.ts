@@ -206,7 +206,7 @@ class BusinessUserHandler {
     public getSomeUsers = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const users = await this.businessUserService.getAllBusinessUsers();
-            return res.status(200).json({ data: users.forEach((t) => t.toAdminJSON) });
+            return res.status(200).json({ data: users.map((t) => t.toAdminJSON) });
         } catch (e) {
             res.status(400).json({
                 message: "Error when processing",

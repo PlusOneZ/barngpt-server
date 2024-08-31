@@ -144,8 +144,9 @@ class TaskHandler {
 
     public getPrices = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const currency = (req.user as any).currency;
-            const prices = this.agentService.getAllModelPrices(currency);
+            const bUserDoc = await this.businessUserService.getBusinessUserByObjId((req.user as any).id);
+            const currency = bUserDoc?.currency;
+            const prices = this.agentService.getAllModelPrices(currency ? currency : 10.0);
             res.json({data: prices, message: "OK"});
         } catch (e) {
             next(e)
