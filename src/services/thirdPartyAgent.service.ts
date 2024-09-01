@@ -222,7 +222,9 @@ class ThirdPartyAgentService {
             const currency = owner.currency ? owner.currency : currencyUsed;
             currencyUsed = currency
             results.forEach((r: any) => {
-                owner.deductCredits(r.usage * currency);
+                if (r.usage) {
+                    owner.deductCredits(r.usage * currency);
+                }
             })
         } else {
             console.log(`Task ${taskId} not charged.`)
@@ -232,7 +234,7 @@ class ThirdPartyAgentService {
                 // save image (r.url) to 'public/image' with taskID as file name.
                 this.fileService.saveImageFromUrl(r.content, `${taskId}.png`)
                 return {
-                    type: r.type,
+                    ...r,
                     url: this.fileService.imageUrl(`${taskId}.png`),
                     usage: r.usage * currencyUsed
                 }
