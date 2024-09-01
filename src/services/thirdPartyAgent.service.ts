@@ -234,8 +234,7 @@ class ThirdPartyAgentService {
                 // save image (r.url) to 'public/image' with taskID as file name.
                 this.fileService.saveImageFromUrl(r.content, `${taskId}.png`)
                 return {
-                    ...r,
-                    content: undefined,
+                    type: r.type,
                     url: this.fileService.imageUrl(`${taskId}.png`),
                     usage: r.usage? r.usage * currencyUsed : 0
                 }
