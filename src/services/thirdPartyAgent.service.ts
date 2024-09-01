@@ -235,13 +235,14 @@ class ThirdPartyAgentService {
                 this.fileService.saveImageFromUrl(r.content, `${taskId}.png`)
                 return {
                     ...r,
+                    content: undefined,
                     url: this.fileService.imageUrl(`${taskId}.png`),
-                    usage: r.usage * currencyUsed
+                    usage: r.usage? r.usage * currencyUsed : 0
                 }
             }
             return {
                 ...r,
-                usage: r.usage * currencyUsed
+                usage: r.usage? r.usage * currencyUsed : 0
             }
         })
         if (results) {
