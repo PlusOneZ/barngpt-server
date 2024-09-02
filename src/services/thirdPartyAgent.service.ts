@@ -7,6 +7,7 @@ import {composePrompts, removePromptId} from "../utils/prompts";
 import AudioService from "./audio.service";
 import { getWhisperPrice, getTTSPrice } from "../utils/constants";
 import { modelPrices } from "../utils/constants";
+import {ObjectId} from "bson";
 
 
 dotenv.config({path: `.env.${process.env.NODE_ENV}`})
@@ -58,6 +59,10 @@ class ThirdPartyAgentService {
     public getAllModelPrices(currency: number) {
         // every number entry in MODEL_PRICES times currency
         return modelPrices(currency);
+    }
+
+    public getAllModels() {
+        return Object.keys(modelPrices(1));
     }
 
     public async doTask(taskData: Task) {

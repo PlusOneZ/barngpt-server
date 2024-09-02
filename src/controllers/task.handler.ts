@@ -152,6 +152,15 @@ class TaskHandler {
             next(e)
         }
     }
+
+    public getModels = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const models = this.agentService.getAllModels();
+            res.json({data: models, message: "OK"});
+        } catch (e) {
+            next(e)
+        }
+    }
 }
 
 export default TaskHandler
