@@ -55,7 +55,7 @@ const chatSchema = Joi.object().keys({
     )
 });
 
-const getSchema = (...models: string[])=> {
+const getSchema = (...models: string[]) => {
     return Joi.object().keys({
         taskType: Joi.string().required(),
         content: Joi.object().keys({
@@ -70,6 +70,7 @@ const getSchema = (...models: string[])=> {
         model: Joi.string().valid("default", ...models),
         options: Joi.object().keys({
             size: Joi.string().valid("256x256", "512x512", "1024x1024", "1024x1792", "1792x1024"),
+            quality: Joi.string().valid("standard", "hd"),
         })
     });
 }
@@ -88,10 +89,10 @@ const imageRecognitionSchema = Joi.object().keys({
             role: Joi.string().valid("user").required(),
             content: Joi.array().items(Joi.object().keys({
                 type: Joi.string().valid("text", "image_url").required(),
-                text: Joi.string().when("type", { is: "text", then: Joi.required() }),
+                text: Joi.string().when("type", {is: "text", then: Joi.required()}),
                 image_url: Joi.object().keys(
                     {url: Joi.string().required()} // TODO make it uri when using domain name
-                ).when("type", { is: "image_url", then: Joi.required() }),
+                ).when("type", {is: "image_url", then: Joi.required()}),
             })).min(1).required().has(Joi.object().keys({
                 type: Joi.string().valid("image_url"),
                 image_url: Joi.object()
@@ -124,7 +125,24 @@ export function validateTask(task: any) {
         case "chat":
             return chatSchema.validate(task);
         case "image-generation":
-            return imageGenerationSchema.validate(task);
+            const res = imageGenerationSchema.validate(task);
+            if (res.error) return res;
+            if (task.model && task.model === "dall-e-2") {
+                if (task.options) {
+                    return Joi.object().keys({
+                        size: Joi.string().valid("256x256", "512x512", "1024x1024"),
+                        quality: Joi.string().valid("standard")
+                    }).validate(task.options);
+                }
+            } else if (task.model && task.model === "dall-e-3") {
+                if (task.options) {
+                    return Joi.object().keys({
+                        size: Joi.string().valid("1024x1024", "1024x1792", "1792x1024"),
+                        quality: Joi.string().valid("standard", "hd")
+                    }).validate(task.options);
+                }
+            }
+            return res;
         case "image-recognition":
             return imageRecognitionSchema.validate(task);
         case "audio-generation":
