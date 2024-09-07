@@ -10,6 +10,9 @@ import * as http from "http";
 import fs from "fs";
 
 import dotenv from "dotenv";
+import { Logger } from "tslog";
+
+const log: Logger = new Logger({ name: "Server" });
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
@@ -35,12 +38,12 @@ if (process.env.HTTPS_ENABLED === 'true') {
     }, app.getServer());
 
     httpsServer.listen(port, () => {
-        console.log(`App listening on the port ${port}`);
+        log.info(`App listening on the port ${port}`);
     });
 }
 
 const httpServer = http.createServer(app.getServer());
 
 httpServer.listen(process.env.PORT, () => {
-    console.log(`App listening on the port ${process.env.PORT}`);
+    log.info(`App listening on the port ${process.env.PORT}`);
 });

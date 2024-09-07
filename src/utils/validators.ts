@@ -69,8 +69,8 @@ const getSchema = (...models: string[]) => {
         }).required(),
         model: Joi.string().valid("default", ...models),
         options: Joi.object().keys({
-            size: Joi.string().valid("256x256", "512x512", "1024x1024", "1024x1792", "1792x1024"),
-            quality: Joi.string().valid("standard", "hd"),
+            size: Joi.string(),
+            quality: Joi.string(),
         })
     });
 }

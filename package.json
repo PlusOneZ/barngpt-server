@@ -32,7 +32,8 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "request": "^2.88.2",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "tslog": "^3.2.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
