@@ -40,10 +40,15 @@ class TaskRoute implements Route {
             this.authHandler.requireBusinessJwtAuth,
             this.taskHandler.getResults
         );
+        // routes.get(
+        //     `/models/prices`,
+        //     this.authHandler.requireBusinessJwtAuth,
+        //     this.taskHandler.getPrices
+        // );
         routes.get(
-            `/models/prices`,
+            `/models`,
             this.authHandler.requireBusinessJwtAuth,
-            this.taskHandler.getPrices
+            this.taskHandler.getModels
         );
 
         // TODO: Add security methods
