@@ -7,15 +7,17 @@ import {BUserModel} from "../models/businessUser.model";
 import HttpException from "../exceptions/HttpException";
 import {generateJWT, generateBusinessJWT} from "../utils/jwt";
 
+import { log } from "../utils/logging";
+
 class AuthService {
 
     public requireLocalAuth = (req: Request, res: Response, next: NextFunction) => {
         passport.authenticate('local', (err: Error | null, user: any, info: any) => {
-            // console.log(err, user)
+            // log(err, user)
             if (err) {
                 return next(err);
             }
-            // console.log(info)
+            // log(info)
             if (!user) {
                 return res.status(422).send(info);
             }
@@ -26,11 +28,11 @@ class AuthService {
 
     public requireBusinessAuth = (req: Request, res: Response, next: NextFunction) => {
         passport.authenticate('business-local', (err: Error | null, user: any, info: any) => {
-            // console.log(err, user)
+            // log(err, user)
             if (err) {
                 return next(err);
             }
-            // console.log(info)
+            // log(info)
             if (!user) {
                 return res.status(422).send(info);
             }
@@ -61,7 +63,7 @@ class AuthService {
 
     public after3rdLogin = (req: Request, res: Response) => {
         try {
-            console.log("After 3rd login")
+            log.info("After 3rd login")
             const token = generateJWT(req.user);
             res.header('Authentication', "Bearer " + token);
             // res.cookie('x-auth-cookie', token);
@@ -154,9 +156,9 @@ class AuthService {
         // The way to provide this auth is to have a
         // Bearer token in the Authorization header
         passport.authenticate("jwt", (err: Error | null, user: any) => {
-            // console.log("Authenticating with jwt...")
+            // log("Authenticating with jwt...")
             if (err) {
-                // console.log(err)
+                // log(err)
                 return res.status(401).json({ error: 'unauthorized', message: err.message })
             }
             if (!user) {
@@ -169,9 +171,9 @@ class AuthService {
 
     public requireBusinessJwtAuth = (req: Request, res: Response, next: NextFunction) => {
         passport.authenticate("business-jwt", (err: Error | null, user: any) => {
-            // console.log("Authenticating with jwt...")
+            // log("Authenticating with jwt...")
             if (err) {
-                // console.log(err)
+                // log(err)
                 return res.status(401).json({ error: 'unauthorized', message: err.message })
             }
             if (!user) {

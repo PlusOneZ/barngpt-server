@@ -7,6 +7,8 @@ import bodyParser from "body-parser";
 import passportMiddleware from "./middlewares/passport.middleware";
 import { globalAgent } from 'https';
 
+import { dbLog, log } from "./utils/logging";
+
 import cors from "cors";
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
@@ -31,7 +33,7 @@ class App {
 
     public listen() {
         this.app.listen(this.port, () => {
-            console.log(`App listening on the port ${this.port}`);
+            log.info(`App listening on the port ${this.port}`);
         });
     }
 
@@ -73,17 +75,17 @@ class App {
         const connectString = process.env.MONGO_URI
 
         if (!connectString) {
-            console.error("MongoDB Connection String Missing! Set ENV variable MONGO_URI.")
+            dbLog.error("MongoDB Connection String Missing! Set ENV variable MONGO_URI.")
             process.exit(1);
         }
 
         mongoose.connect(connectString)
         const db = mongoose.connection
         db.on('error', err => {
-            console.error("MongoDB (Mongoose) Error: " + err.message)
+            dbLog.error("MongoDB (Mongoose) Error: " + err.message)
             process.exit(1)
         })
-        db.once('open', () => { console.log("Mongoose Connection Established") })
+        db.once('open', () => { dbLog.info("Mongoose Connection Established");})
     }
 
     private initErrorHandling() {

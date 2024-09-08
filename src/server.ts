@@ -14,6 +14,16 @@ import { Logger } from "tslog";
 
 const log: Logger = new Logger({ name: "Server" });
 
+process.on('uncaughtException', function (e) {
+    log.error(new Date().toString(), e.stack || e);
+    process.exit(1);
+});
+
+process.on('error', function (e) {
+    log.error(new Date().toString(), e.stack || e);
+    process.exit(1);
+});
+
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
 const app = new App([

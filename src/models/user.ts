@@ -1,6 +1,7 @@
 import { Schema, model, Model } from "mongoose";
 import bcrypt from 'bcryptjs'
 import Joi from 'joi'
+import { log } from "../utils/logging";
 
 interface IUser {
     provider: string,
@@ -82,7 +83,7 @@ userSchema.method("registerUser",  (newUser, callback: any) => {
     bcrypt.genSalt(10, (err, salt) => {
         bcrypt.hash(newUser.password, salt, async (errh, hash) => {
             if (err || errh) {
-                console.log(err, errh)
+                log.error(err, errh)
             }
             newUser.password = hash;
             await newUser.save().then(callback)

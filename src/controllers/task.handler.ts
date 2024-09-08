@@ -4,10 +4,9 @@ import { Task } from "../models/task.model";
 import TaskService from "../services/task.service";
 import ThirdPartyAgentService from "../services/thirdPartyAgent.service";
 import BusinessUserService from "../services/businessUser.service";
-import HttpException from "../exceptions/HttpException";
 import {businessJwtPayloadSchema, validateTask} from "../utils/validators";
-import businessUserService from "../services/businessUser.service";
 import {MINIMUM_TASKABLE_CREDITS} from "../utils/constants";
+import {log} from "../utils/logging";
 
 class TaskHandler {
     taskService = new TaskService();
@@ -50,9 +49,9 @@ class TaskHandler {
             const t: Task = await this.taskService.createTask(taskData);
             res.status(201).json( { data: TaskHandler.taskStringify(t), message: "Task created" });
             this.agentService.doTask(t).then(
-                () => console.log("Hook sent")
+                () => log.info("Hook sent")
             ).catch(
-                (e) => console.error(`Error while sending hook: ${e}`)
+                (e) => log.error(`Error while sending hook: ${e}`)
                 // announce failure to task results.
             );
         } catch (e) {
@@ -68,7 +67,7 @@ class TaskHandler {
             res.status(401).json({error: "Invalid Auth", message: "Dirty token, try login bUser again."})
             return
         }
-        // console.log(req.user)
+        // log.info(req.user)
         const bUserDoc = await this.businessUserService.getBusinessUserByObjId((req.user as any).id);
         if (!bUserDoc) {
             res.status(401).json({error: "Invalid Auth", message: "User not found in database."})
@@ -86,7 +85,7 @@ class TaskHandler {
             const userId = (req.user as any)?.id;
             let tasks : any[] = await this.taskService.findSomeTasks(10, userId);
             tasks = tasks.map( TaskHandler.taskStringify );
-            // console.log(tasks)
+            // log.debug(tasks)
             res.status(200).json({data: tasks, message: "OK"});
         } catch (e) {
             next(e)
@@ -96,7 +95,7 @@ class TaskHandler {
     public getNewest = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userId = (req.user as any)?.id;
-            console.log(`User ${userId} is querying for newest task`)
+            log.debug(`User ${userId} is querying for newest task`)
             const theTask = await this.taskService.getNewestOne(userId);
             if (!theTask) {
                 return res.status(404).json({message: "Task not found"});
@@ -121,7 +120,7 @@ class TaskHandler {
         try {
             const {taskId} = req.params;
             const taskData = req.body;
-            console.log(`Task ${taskId} hook called with ${taskData}`);
+            log.info(`Task ${taskId} hook called with ${taskData}`);
             await this.agentService.taskUpdate(taskId, taskData);
             res.status(201).json({message: "Task updated"});
         } catch (e) {

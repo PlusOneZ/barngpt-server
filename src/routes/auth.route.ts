@@ -2,6 +2,8 @@ import { Router } from "express";
 import AuthService from "../services/auth.service";
 import Route from "../interfaces/Route.interface";
 
+import { log } from "../utils/logging";
+
 class AuthRoute implements Route {
     public path = '/auth';
     public router = Router();
@@ -54,7 +56,7 @@ class AuthRoute implements Route {
             this.authHandler.requireBusinessJwtAuth,
             this.authHandler.requireBusinessAdmin,
             (req: any, res: any) => {
-                console.log(req.user)
+                log.info(req.user)
                 res.send({message: 'You are an admin'})
             }
         )

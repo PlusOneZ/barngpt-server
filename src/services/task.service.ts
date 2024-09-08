@@ -3,6 +3,8 @@ import {CreateTaskDto} from "../dtos/task.dto";
 import HttpException from "../exceptions/HttpException";
 import FileService from "./file.service";
 
+import { log } from "../utils/logging";
+
 class TaskService {
     public tasks = TaskModel;
     fileService = new FileService();
@@ -10,7 +12,7 @@ class TaskService {
     public async createTask(taskData: CreateTaskDto) : Promise<Task> {
         const t = await this.tasks.create( taskData )
         if (!t) {
-            console.error(`Error while saving Task(with ${taskData.content})`)
+            log.error(`Error while saving Task(with ${taskData.content})`)
             throw new HttpException(500, "Task Create Failed.")
         }
         let changeFlag = false;

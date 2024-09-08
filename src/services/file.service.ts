@@ -4,6 +4,8 @@ import axios from "axios";
 import { getAudioDurationInSeconds } from 'get-audio-duration'
 import  {getImageMimeType, imageSuffix} from "../utils/base64";
 
+import { log } from "../utils/logging";
+
 class FileService {
     // private readonly HOST: string;
     // private readonly PORT: string;
@@ -95,7 +97,7 @@ class FileService {
             const audioPath = path.join(__dirname, '../../public/audio', audioName)
             return await getAudioDurationInSeconds(audioPath);
         } catch (e) {
-            console.error(`Error while getting audio duration: ${e}`);
+            log.error(`Error while getting audio duration: ${e}`);
             return -0.1;
         }
     }

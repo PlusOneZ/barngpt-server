@@ -7,7 +7,8 @@ import {composePrompts, removePromptId} from "../utils/prompts";
 import AudioService from "./audio.service";
 import { getWhisperPrice, getTTSPrice } from "../utils/constants";
 import { modelPrices } from "../utils/constants";
-import {ObjectId} from "bson";
+
+import { log } from "../utils/logging";
 
 
 dotenv.config({path: `.env.${process.env.NODE_ENV}`})
@@ -23,8 +24,8 @@ class ThirdPartyAgentService {
 
     constructor() {
         if (!process.env.THIRD_PARTY_AGENT_API) {
-            console.log(process.env.THIRD_PARTY_AGENT_API)
-            console.error("API URL is missing.");
+            log.info(process.env.THIRD_PARTY_AGENT_API)
+            log.error("API URL is missing.");
             process.exit(1);
         }
         this.API_URL = process.env.THIRD_PARTY_AGENT_API!;
@@ -34,9 +35,9 @@ class ThirdPartyAgentService {
 
     private readonly responseHandler = (url: string) => {
         return (response: any) => {
-            console.log(`Response (success) from URL ${url}: ${response}`);
-            console.log(response.status)
-            console.log(response.body)
+            log.debug(`Response (success) from URL ${url}: ${response}`);
+            log.debug(response.status)
+            log.debug(response.body)
         }
     }
 
@@ -52,7 +53,7 @@ class ThirdPartyAgentService {
                 }],
                 status: "failed"
             });
-            console.log(`Error from URL ${url}: ${error}`);
+            log.error(`Error from URL ${url}: ${error}`);
         }
     }
 
@@ -109,14 +110,14 @@ class ThirdPartyAgentService {
     private async sendVisionReq(tid: string, prompts: any, model: string) {
         const url = this.API_URL + "/task/vision";
         const hook = this.createHook(tid);
-        // console.log(prompts)
+        // log(prompts)
         axios.post(url, {data: prompts, hook: hook, model: model})
             .then(this.responseHandler(url))
             .catch(this.errorHandler(url, prompts, tid, "image-recognition"));
     }
 
     private async textToSpeechCall(taskId: string, text: string, model: string) {
-        console.log(`Generating audio for task ${taskId}`);
+        log.info(`Generating audio for task ${taskId}`);
         let results: any[] = [];
         let state;
         let response: any = undefined
@@ -132,16 +133,16 @@ class ThirdPartyAgentService {
                 state = mp3 ? "done" : "failed";
                 response = mp3;
             } else if (rateControl.status === 429) {
-                console.error("Rate limit reached, try again later.");
+                log.error("Rate limit reached, try again later.");
                 results = [{type: "error", "content": rateControl.data}];
                 state = "rejected";
             } else {
-                console.error(`Unexpected response from audio generation: ${rateControl.status}`);
+                log.error(`Unexpected response from audio generation: ${rateControl.status}`);
                 results = [{type: "error", "message": "this task will not be charged", target_task: "audio-generation"}];
                 state = "failed";
             }
         } catch (e: any) {
-            console.error(`Unexpected response from audio generation: ${e.status}`);
+            log.error(`Unexpected response from audio generation: ${e.status}`);
             results = [{type: "3rd_party_error", "message": e.message, target_task: "audio-generation"}];
             state = "failed";
         }
@@ -153,14 +154,14 @@ class ThirdPartyAgentService {
                 apiResponse: response
             }
         );
-        console.log(`Audio generation for ${taskId} done.`);
+        log.info(`Audio generation for ${taskId} done.`);
     }
 
     private async speechToTextCall(taskId: string, audioPath: string, model : string) {
-        console.log(`Recognizing audio for task ${taskId}`)
+        log.info(`Recognizing audio for task ${taskId}`)
         const rateControl = await axios.post(this.API_URL + "/task/audio/recognition");
         if (rateControl.status !== 200) {
-            console.error("Rate limit reached, try again later.");
+            log.error("Rate limit reached, try again later.");
             await this.taskUpdate(taskId, { results: [{type: "error", "content": rateControl.data}], status: "rejected"});
             return;
         }
@@ -181,9 +182,9 @@ class ThirdPartyAgentService {
                     apiResponse: resp
                 }
             );
-            console.log(`Audio recognition for ${taskId} done.`);
+            log.info(`Audio recognition for ${taskId} done.`);
         } catch (e: any) {
-            console.error(`Error while recognizing audio ${audioName}: ${e}`);
+            log.error(`Error while recognizing audio ${audioName}: ${e}`);
             await this.taskUpdate(taskId, {
                 results: [{type: "3rd_party_error", "message": e.message, target_task: "audio-recognition"}],
                 status: "rejected"
@@ -205,20 +206,20 @@ class ThirdPartyAgentService {
      */
     public createHook(taskId: string): string {
         const hook: string = `http://${this.HOST}:${this.PORT}/task/${taskId}/hook`;
-        // console.log(`Hook created: ${hook}`);
+        // log(`Hook created: ${hook}`);
         return hook;
     }
 
     public async taskUpdate(taskId: string | undefined, taskData: any) {
         if (!taskId) {
-            console.error(`Task ID is missing: ${taskId}`);
+            log.error(`Task ID is missing: ${taskId}`);
             return;
         }
         // option 1: only update the task status
         const {results, apiResponse, status} = taskData;
         const task = await this.tasks.findOne({_id: taskId}).populate("ownerId").exec()
         if (!task) {
-            console.error(`Task ${taskId} not found.`);
+            log.error(`Task ${taskId} not found.`);
             return;
         }
         let currencyUsed = 10.
@@ -232,7 +233,7 @@ class ThirdPartyAgentService {
                 }
             })
         } else {
-            console.log(`Task ${taskId} not charged.`)
+            log.warn(`Task ${taskId} not charged.`)
         }
         const saveResults = results.map((r: any) => {
             if (r.type === "image-generation") {
@@ -258,7 +259,7 @@ class ThirdPartyAgentService {
                     $push: {results: {$each: saveResults}}
                 },
             ).then(() => {
-                console.log(`Task ${taskId} updated.`);
+                log.info(`Task ${taskId} updated.`);
                 if (apiResponse) {
                     this.openaiResponse.create({
                         taskId: taskId,
@@ -266,7 +267,7 @@ class ThirdPartyAgentService {
                     });
                 }
             }).catch((e) => {
-                console.error(`Error while updating Task ${taskId}: ${e}`);
+                log.error(`Error while updating Task ${taskId}: ${e}`);
             });
         }
     }

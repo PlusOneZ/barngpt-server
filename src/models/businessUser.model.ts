@@ -1,5 +1,6 @@
 import { Schema, model, Model } from "mongoose";
 import bcrypt from 'bcryptjs'
+import { dbLog } from "../utils/logging";
 
 interface ICreditHistory {
     amount: number,
@@ -116,11 +117,11 @@ bUserSchema.method("createBUser", async function createBUser(user: any) {
     bcrypt.genSalt(10, (err, salt) => {
         bcrypt.hash(user.password, salt, async (errHash, hash) => {
             if (err || errHash) {
-                console.log(err, errHash)
+                dbLog.error(err, errHash)
             }
             user.password = hash;
             await user.save().then( () => {
-                console.log(`User created: ${user.identifier}`)
+                dbLog.info(`User created: ${user.identifier}`)
             })
         })
     })
@@ -140,7 +141,7 @@ bUserSchema.method("deductCredits", async function deductCredits(amount: number)
 
 bUserSchema.method("changeCurrency", async function changeCurrency(currency: number) {
     if (currency <= 0.1) {
-        console.log("Currency must be no less than 0.1.")
+        dbLog.warn("Currency must be no less than 0.1.")
         return
     }
     this.currency = currency

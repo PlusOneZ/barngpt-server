@@ -2,6 +2,7 @@ import {NextFunction, Request, Response} from "express";
 import FileService from "../services/file.service";
 import HttpException from "../exceptions/HttpException";
 import path from "path";
+import { log } from "../utils/logging";
 
 class FileServingHandler {
     private fileService = new FileService();
@@ -31,7 +32,7 @@ class FileServingHandler {
     }
 
     public serveFile = (req: Request, res: Response, next: NextFunction) => {
-        console.log(req.params.filename, req.params.type)
+        log.info("Retrieving File", req.params.filename, req.params.type)
         res.sendFile(
             req.params.filename,
             {root: path.join(__dirname, '../../public', req.params.type)},

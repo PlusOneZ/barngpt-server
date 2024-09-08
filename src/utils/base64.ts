@@ -1,5 +1,7 @@
 import { b64decode } from '@waiting/base64'
 
+import { log } from "./logging";
+
 const mimeTypes = {
     png: 'image/png',
     gif: 'image/gif',
@@ -34,7 +36,7 @@ function getImageMimeType(base64Encoded: string) {
 
 function imageSuffix(mimeType: string) {
     for (const [key, value] of Object.entries(mimeTypes)) {
-        console.log(key, value)
+        log.debug(key, value)
         if (value === mimeType) return key
     }
     return null

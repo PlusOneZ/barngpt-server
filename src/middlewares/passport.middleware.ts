@@ -7,6 +7,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth2";
 import { UserModel } from "../models/user";
 import { BUserModel } from "../models/businessUser.model";
 import { loginSchema, businessLoginSchema } from "../utils/validators";
+import { log } from "../utils/logging";
 import dotenv from "dotenv";
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}`});
@@ -91,7 +92,7 @@ const jwtLogin = new JwtStrategy(
     async (payload: any, done: any) => {
         // check if expired
         if (!payload.exp || Math.floor(Date.now() / 1000) > payload.exp) {
-            console.log(`Token expired ${Date.now()} > ${payload.exp}`)
+            log.info(`Token expired ${Date.now()} > ${payload.exp}`)
             return done(new Error("Dirty token or token expired"), false)
         }
         UserModel.findOne({ "email": payload.email }).then(function ( user) {
@@ -117,12 +118,12 @@ const jwtBusinessLogin = new JwtStrategy(
         // check if expired
         // TODO: buser might need longer expiration limit
         if (!payload.exp || Math.floor(Date.now() / 1000) > payload.exp) {
-            console.log(`Token expired ${Date.now()} > ${payload.exp}`)
+            log.info(`Token expired ${Date.now()} > ${payload.exp}`)
             return done(new Error("Dirty token or token expired"), false)
         }
         BUserModel.findOne({ "identifier": payload.identifier }).then(function ( user) {
             if (user) {
-                // console.log(`user: ${user}`)
+                // log(`user: ${user}`)
                 req.user = payload
                 return done(null, user)
             } else {
@@ -164,7 +165,7 @@ const facebookLogin = new FacebookStrategy(
                 return done(null, oldUser);
             }
         } catch (err) {
-            console.log(err);
+            log.error(err);
         }
 
         // register user
@@ -181,7 +182,7 @@ const facebookLogin = new FacebookStrategy(
 
             done(null, newUser);
         } catch (err) {
-            console.log(err);
+            log.error(err);
         }
     },
 )
@@ -196,7 +197,7 @@ const googleLogin = new GoogleStrategy(
         // proxy: true,
     },
     async (accessToken: string, refreshToken: string, profile: any, done: any) => {
-        console.log(profile);
+        log.info(profile);
         try {
             const oldUser = await UserModel.findOne({ email: profile.email });
 
@@ -204,7 +205,7 @@ const googleLogin = new GoogleStrategy(
                 return done(null, oldUser);
             }
         } catch (err) {
-            console.log(err);
+            log.error(err);
         }
 
         try {
@@ -218,7 +219,7 @@ const googleLogin = new GoogleStrategy(
             }).save();
             done(null, newUser);
         } catch (err) {
-            console.log(err);
+            log.error(err);
         }
     },
 );
