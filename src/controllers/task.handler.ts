@@ -74,6 +74,7 @@ class TaskHandler {
             return
         }
         if (bUserDoc.credits < MINIMUM_TASKABLE_CREDITS) {
+            log.warn(`Credits not enough for user: ${bUserDoc.identifier}.`)
             res.status(403).json({error: "Insufficient Credits", message: "Top up your credits to create a task."})
             return
         }
