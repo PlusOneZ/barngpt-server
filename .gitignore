@@ -18,3 +18,5 @@ logs/*
 *.mp3
 *.wav
 *.webp
+
+dist/*
