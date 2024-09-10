@@ -20,3 +20,4 @@ db.on('error', err => {
     process.exit(1);
 });
 db.once('open', () => { console.log("Mongoose Connection Established"); });
+//# sourceMappingURL=db.js.map

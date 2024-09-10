@@ -4,7 +4,6 @@ class IndexHandler {
     constructor() {
         this.index = (req, res, next) => {
             try {
-                console.log("Called index");
                 res.status(200).send("hello!");
             }
             catch (e) {
@@ -14,3 +13,4 @@ class IndexHandler {
     }
 }
 exports.default = IndexHandler;
+//# sourceMappingURL=index.handler.js.map

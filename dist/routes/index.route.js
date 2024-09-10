@@ -14,6 +14,8 @@ class IndexRoute {
     }
     initializeRoutes() {
         this.router.get(`${this.path}`, this.indexHandler.index);
+        this.router.get(`/`, this.indexHandler.index);
     }
 }
 exports.default = IndexRoute;
+//# sourceMappingURL=index.route.js.map
