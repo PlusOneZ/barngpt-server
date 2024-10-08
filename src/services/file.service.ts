@@ -40,8 +40,12 @@ class FileService {
     }
 
     public saveImageFromUrl(url: string, filename: string, subDir: string = "") {
+        if (url.startsWith('file://')) {
+            return this.saveImageFileFromLocal(url.slice('file://'.length), filename, subDir);
+        }
+        const saveName = `${filename}.png`
         const stream = fs.createWriteStream(
-            path.join(__dirname, '../../public/image' + subDir, filename),
+            path.join(__dirname, '../../public/image' + subDir, saveName),
         );
         stream.on('open', () => {
             axios({
@@ -52,6 +56,17 @@ class FileService {
                 response.data.pipe(stream);
             });
         })
+        return saveName
+    }
+
+    private saveImageFileFromLocal(filePath: string, filename: string, subDir: string = "") {
+        const subfix = path.extname(filePath);
+        const saveName = `${filename}${subfix}`;
+        fs.copyFileSync(
+            filePath,
+            path.join(__dirname, '../../public/image' + subDir, saveName)
+        );
+        return saveName;
     }
 
     public base64ImageToFile(base64: string, filename: string) {

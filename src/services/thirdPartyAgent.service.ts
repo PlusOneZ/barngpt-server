@@ -238,10 +238,11 @@ class ThirdPartyAgentService {
         const saveResults = results.map((r: any) => {
             if (r.type === "image-generation") {
                 // save image (r.url) to 'public/image' with taskID as file name.
-                this.fileService.saveImageFromUrl(r.content, `${taskId}.png`)
+                log.info(r.content)
+                const filename = this.fileService.saveImageFromUrl(r.content, `${taskId}`)
                 return {
                     type: r.type,
-                    url: this.fileService.imageUrl(`${taskId}.png`),
+                    url: this.fileService.imageUrl(filename),
                     usage: r.usage? r.usage * currencyUsed : 0
                 }
             }

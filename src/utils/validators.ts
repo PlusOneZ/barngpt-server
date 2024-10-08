@@ -76,7 +76,7 @@ const getSchema = (...models: string[]) => {
 }
 
 const imageGenerationSchema = getSchema(
-    "dall-e-2", "dall-e-3"
+    "dall-e-2", "dall-e-3", "se1-flux1-schnell", "se1-flux1-dev"
 )
 const audioGenerationSchema = getSchema(
     "tts-1", "tts-1-hd"
