@@ -35,6 +35,7 @@ const taskSchema = new Schema({
             "gpt-4o-mini", "gpt-4o-2024-08-06",
             "dall-e-2", "dall-e-3",
             "se1-flux1-schnell", "se1-flux1-dev",
+            "se2-flux1-schnell", "se2-flux1-dev", "se2-flux1-pro", "se2-flux1.1-pro",
             "whisper-1", "tts-1", "tts-1-hd"
         ]
     },
