@@ -3,9 +3,12 @@ import TaskHandler from "../controllers/task.handler";
 import Route from "../interfaces/Route.interface";
 import AuthService from "../services/auth.service";
 import BusinessUserHandler from "../controllers/businessUser.handler";
+import dotenv from "dotenv";
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
 class TaskRoute implements Route {
-    public path = '/task'
+    public path = `${process.env.API_PREFIX || ''}/task`
     public router = Router();
     public taskHandler = new TaskHandler();
     public authHandler = new AuthService();

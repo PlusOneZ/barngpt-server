@@ -3,8 +3,13 @@ import Route from "../interfaces/Route.interface";
 import FileServingHandler from "../controllers/fileServing.handler";
 import {audioUpload, imgUpload} from "../middlewares/upload.middleware";
 
+import dotenv from "dotenv";
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
+
+
 class FileRoute implements Route {
-    public path = '/file';
+    public path = `${process.env.API_PREFIX || ''}/file`;
     public router = Router();
     public imageHandler = new FileServingHandler();
 

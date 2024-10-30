@@ -17,6 +17,7 @@ class ThirdPartyAgentService {
     public readonly API_URL: string;
     private readonly HOST: string;
     private readonly PORT: string;
+    private readonly API_PREFIX: string;
     private tasks = TaskModel;
     private openaiResponse = OpenaiResponseModel;
     private fileService = new FileService();
@@ -31,6 +32,7 @@ class ThirdPartyAgentService {
         this.API_URL = process.env.THIRD_PARTY_AGENT_API!;
         this.HOST = process.env.HOST!;
         this.PORT = process.env.PORT!;
+	this.API_PREFIX = process.env.API_PREFIX!;
     }
 
     private readonly responseHandler = (url: string) => {
@@ -205,7 +207,7 @@ class ThirdPartyAgentService {
      * Create a webhook of route /task/:id/hook
      */
     public createHook(taskId: string): string {
-        const hook: string = `http://${this.HOST}:${this.PORT}/task/${taskId}/hook`;
+        const hook: string = `http://${this.HOST}:${this.PORT}${this.API_PREFIX}/task/${taskId}/hook`;
         // log(`Hook created: ${hook}`);
         return hook;
     }

@@ -4,8 +4,12 @@ import Route from "../interfaces/Route.interface";
 
 import { log } from "../utils/logging";
 
+import dotenv from "dotenv";
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
+
 class AuthRoute implements Route {
-    public path = '/auth';
+    public path = `${process.env.API_PREFIX || ''}/auth`;
     public router = Router();
     public authHandler = new AuthService();
 

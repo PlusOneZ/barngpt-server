@@ -34,9 +34,11 @@ const app = new App([
     new BusinessUserRoute()
 ])
 
+//20241030: use ngnix to hanndle https, comment the following https
 // Set up HTTPS server
 // Some auth provider requires the server to have a domain name,
 // and https for security reasons.
+/*
 if (process.env.HTTPS_ENABLED === 'true') {
     const port = 443;
     const cert_key = fs.readFileSync(process.env.SSL_KEY!);
@@ -51,9 +53,9 @@ if (process.env.HTTPS_ENABLED === 'true') {
         log.info(`App listening on the port ${port}`);
     });
 }
-
+*/
 const httpServer = http.createServer(app.getServer());
 
-httpServer.listen(process.env.PORT, () => {
+httpServer.listen(process.env.PORT || 3000, () => {
     log.info(`App listening on the port ${process.env.PORT}`);
 });

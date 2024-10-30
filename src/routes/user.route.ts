@@ -3,8 +3,12 @@ import Route from "../interfaces/Route.interface";
 import AuthService from "../services/auth.service";
 import BusinessUserHandler from "../controllers/businessUser.handler";
 
+import dotenv from "dotenv";
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
+
 class BusinessUserRoute implements Route {
-    public path = '/buser';
+    public path = `${process.env.API_PREFIX || ''}/buser`;
     public router = Router();
     public businessUserHandler = new BusinessUserHandler();
     public authHandler = new AuthService();
